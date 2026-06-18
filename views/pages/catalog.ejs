@@ -1,0 +1,148 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body">
+  <!-- Breadcrumb -->
+  <%- include('../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Produtos', url: '/produtos' }
+    ] 
+  }) %>
+
+  <div class="flex flex-col lg:flex-row gap-8 mt-4">
+    <!-- FILTER SIDEBAR -->
+    <aside class="w-full lg:w-64 flex-shrink-0 bg-white border border-border rounded-2xl p-6 h-fit sticky top-24">
+      <h2 class="text-md font-bold text-primary font-display mb-6 pb-3 border-b border-border">Filtrar Produtos</h2>
+      
+      <form action="/produtos" method="GET" class="space-y-6" id="catalog-filter-form">
+        <!-- Preserve page parameter when filtering (default to 1) -->
+        <input type="hidden" name="page" value="1">
+
+        <!-- Search query filter -->
+        <div class="space-y-2">
+          <label for="filter-q" class="text-xs font-bold text-primary uppercase">Busca</label>
+          <input type="text" 
+                 name="q" 
+                 id="filter-q" 
+                 value="<%= searchQuery %>" 
+                 placeholder="O que procura?" 
+                 class="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+        </div>
+
+        <!-- Categories List -->
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-primary uppercase">Categorias</label>
+          <div class="flex flex-col space-y-1.5 mt-2">
+            <label class="flex items-center text-xs text-text cursor-pointer">
+              <input type="radio" 
+                     name="category" 
+                     value="" 
+                     <%= activeCategorySlug === '' ? 'checked' : '' %> 
+                     class="h-4 w-4 text-primary border-gray-300 focus:ring-primary mr-2"
+                     onchange="this.form.submit()">
+              <span>Todas as Categorias</span>
+            </label>
+            <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+              <% categories.forEach(cat => { %>
+                <label class="flex items-center text-xs text-text cursor-pointer">
+                  <input type="radio" 
+                         name="category" 
+                         value="<%= cat.slug %>" 
+                         <%= activeCategorySlug === cat.slug ? 'checked' : '' %> 
+                         class="h-4 w-4 text-primary border-gray-300 focus:ring-primary mr-2"
+                         onchange="this.form.submit()">
+                  <span><%= cat.name %></span>
+                </label>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-primary uppercase">Faixa de Preço</label>
+          <div class="flex items-center space-x-2 mt-2">
+            <input type="number" 
+                   name="min" 
+                   value="<%= minPrice %>" 
+                   placeholder="Min (R$)" 
+                   class="w-1/2 bg-surface border border-border rounded-xl px-2 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            <span class="text-text-muted text-xs">a</span>
+            <input type="number" 
+                   name="max" 
+                   value="<%= maxPrice %>" 
+                   placeholder="Max (R$)" 
+                   class="w-1/2 bg-surface border border-border rounded-xl px-2 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Sorting selector -->
+        <div class="space-y-2">
+          <label for="filter-sort" class="text-xs font-bold text-primary uppercase">Ordenar por</label>
+          <select name="sort" 
+                  id="filter-sort" 
+                  class="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
+                  onchange="this.form.submit()">
+            <option value="" <%= sortOption === '' ? 'selected' : '' %>>Mais Recentes</option>
+            <option value="price_asc" <%= sortOption === 'price_asc' ? 'selected' : '' %>>Menor Preço</option>
+            <option value="price_desc" <%= sortOption === 'price_desc' ? 'selected' : '' %>>Maior Preço</option>
+          </select>
+        </div>
+
+        <!-- Apply Button -->
+        <button type="submit" class="w-full py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+          Aplicar Filtros
+        </button>
+
+        <!-- Clear Button -->
+        <% if (searchQuery || activeCategorySlug || minPrice || maxPrice || sortOption) { %>
+          <a href="/produtos" class="block w-full py-2.5 bg-white border border-border text-center text-primary text-xs font-bold rounded-xl hover:bg-surface transition-colors duration-200">
+            Limpar Filtros
+          </a>
+        <% } %>
+      </form>
+    </aside>
+
+    <!-- PRODUCT LISTING -->
+    <div class="flex-grow space-y-6">
+      <!-- Toolbar Header -->
+      <div class="bg-white border border-border rounded-2xl p-4 flex items-center justify-between">
+        <p class="text-xs text-text-muted">
+          Exibindo <span class="font-bold text-primary"><%= products.length %></span> de <span class="font-bold text-primary"><%= totalCount %></span> cafés nobres.
+        </p>
+      </div>
+
+      <!-- Grid -->
+      <% if (products && products.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <% products.forEach(prod => { %>
+            <div>
+              <%- include('../partials/product-card', { product: prod }) %>
+            </div>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <%- include('../partials/pagination', { 
+          totalPages, 
+          currentPage,
+          searchQuery,
+          activeCategorySlug,
+          minPrice,
+          maxPrice,
+          sortOption
+        }) %>
+
+      <% } else { %>
+        <!-- Empty State -->
+        <div class="bg-white border border-border rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-4">
+          <div class="w-16 h-16 rounded-full bg-surface flex items-center justify-center text-2xl text-accent">☕</div>
+          <h3 class="text-md font-bold text-primary font-display">Nenhum café nobre encontrado</h3>
+          <p class="text-xs text-text-muted max-w-sm leading-relaxed">
+            Experimente alterar as opções de filtros, redefinir a faixa de preço ou limpar a busca de texto para ver outros produtos.
+          </p>
+          <a href="/produtos" class="px-6 py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+            Ver Todos os Produtos
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

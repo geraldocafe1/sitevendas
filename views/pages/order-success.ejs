@@ -1,0 +1,144 @@
+<% 
+  const ord = order;
+  let paymentText = 'Cartão de Crédito';
+  if (ord.payment_method === 'pix') paymentText = 'PIX';
+  if (ord.payment_method === 'boleto') paymentText = 'Boleto Bancário';
+%>
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-body text-center space-y-8">
+  
+  <!-- Success Badge -->
+  <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-success bg-opacity-10 text-success text-4xl shadow-md">
+    ✓
+  </div>
+
+  <!-- Header -->
+  <div class="space-y-2">
+    <h1 class="text-3xl font-extrabold text-primary font-display tracking-tight">Obrigado! Seu pedido foi recebido.</h1>
+    <p class="text-xs sm:text-sm text-text-muted">
+      O número do seu pedido é <strong class="text-primary font-bold">#<%= ord.id %></strong>. Enviamos os detalhes de confirmação para o e-mail: <strong class="text-primary"><%= ord.shipping_email %></strong>.
+    </p>
+  </div>
+
+  <!-- PAYMENT INSTRUCTIONS -->
+  <% if (ord.payment_method === 'pix') { %>
+    <div class="bg-white border border-border rounded-2xl p-8 max-w-md mx-auto space-y-4 shadow-sm">
+      <span class="text-2xl">⚡</span>
+      <h3 class="text-sm font-bold text-primary font-display uppercase">Pague via PIX para aprovação imediata</h3>
+      
+      <!-- Mock QR code -->
+      <div class="w-48 h-48 bg-surface mx-auto rounded-xl overflow-hidden border border-border flex items-center justify-center p-3">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020126580014BR.GOV.BCB.PIX0117graonobre.pix@pagamentos.com.br5204000053039865405<%= ord.total %>" 
+             alt="QR Code PIX" 
+             class="w-full h-full object-contain">
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <p class="text-[10px] text-text-muted">Ou utilize o código Copia e Cola abaixo:</p>
+        <div class="flex items-center space-x-2 bg-surface p-2 border border-border rounded-xl">
+          <input type="text" 
+                 readonly 
+                 id="pix-code"
+                 value="00020126580014BR.GOV.BCB.PIX0117graonobre.pix@pagamentos.com.br5204000053039865405<%= ord.total %>"
+                 class="bg-transparent border-0 text-[10px] truncate flex-1 focus:outline-none font-mono">
+          <button type="button" 
+                  onclick="copyToClipboard('pix-code', this)"
+                  class="px-3 py-1.5 bg-primary hover:bg-primary-light text-white text-[10px] font-bold rounded-lg transition-colors">
+            Copiar
+          </button>
+        </div>
+      </div>
+    </div>
+  <% } else if (ord.payment_method === 'boleto') { %>
+    <div class="bg-white border border-border rounded-2xl p-8 max-w-md mx-auto space-y-4 shadow-sm">
+      <span class="text-2xl">📄</span>
+      <h3 class="text-sm font-bold text-primary font-display uppercase">Pague o Boleto Bancário</h3>
+      <p class="text-[10px] text-text-muted">Copie o código de barras abaixo para pagar no aplicativo do seu banco:</p>
+      
+      <div class="flex items-center space-x-2 bg-surface p-2.5 border border-border rounded-xl">
+        <input type="text" 
+               readonly 
+               id="boleto-code"
+               value="34191.79001 01043.513184 91020.150008 7 987600000<%= Math.round(ord.total * 100) %>"
+               class="bg-transparent border-0 text-[10px] truncate flex-1 focus:outline-none font-mono">
+        <button type="button" 
+                onclick="copyToClipboard('boleto-code', this)"
+                class="px-3 py-1.5 bg-primary hover:bg-primary-light text-white text-[10px] font-bold rounded-lg transition-colors">
+          Copiar
+        </button>
+      </div>
+
+      <div class="pt-2">
+        <a href="#" class="inline-flex items-center justify-center px-4 py-2 border border-border bg-white text-xs font-bold rounded-xl text-primary hover:bg-surface transition-colors shadow-xs">
+          Visualizar Boleto PDF
+        </a>
+      </div>
+    </div>
+  <% } else { %>
+    <!-- Credit Card success -->
+    <div class="p-6 bg-green-50 border border-green-200 text-green-800 rounded-2xl max-w-md mx-auto text-xs font-bold">
+      💳 Pagamento autorizado automaticamente via cartão de crédito! Seu pedido já está sendo preparado por nossos baristas.
+    </div>
+  <% } %>
+
+  <!-- ORDER SUMMARY -->
+  <div class="bg-white border border-border rounded-2xl p-6 text-left max-w-2xl mx-auto space-y-4 shadow-xs">
+    <h2 class="text-sm font-bold text-primary font-display uppercase pb-2 border-b border-gray-100">Resumo da Entrega</h2>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs leading-relaxed">
+      <div>
+        <p class="text-text-muted uppercase text-[10px] font-bold tracking-wider">Endereço de Entrega</p>
+        <p class="font-semibold text-primary mt-1">
+          <%= ord.shipping_name %><br>
+          <%= ord.shipping_address %><br>
+          CEP: <%= ord.shipping_zip %><br>
+          <%= ord.shipping_city %> - <%= ord.shipping_state %>
+        </p>
+      </div>
+      <div>
+        <p class="text-text-muted uppercase text-[10px] font-bold tracking-wider">Detalhes do Pedido</p>
+        <ul class="space-y-1 mt-1 font-semibold">
+          <li class="flex justify-between"><span class="text-text-muted">Método Pagamento:</span> <span class="text-primary uppercase"><%= paymentText %></span></li>
+          <li class="flex justify-between"><span class="text-text-muted">Status do Pagamento:</span> <span class="text-success uppercase"><%= ord.payment_status === 'approved' ? 'Aprovado' : 'Pendente' %></span></li>
+          <li class="flex justify-between border-t border-gray-100 pt-1.5 mt-1.5"><span class="text-text-muted font-bold text-sm">Total Pago:</span> <span class="text-primary text-sm font-black">R$ <%= parseFloat(ord.total).toFixed(2).replace('.', ',') %></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-4 flex justify-center space-x-3">
+    <a href="/" class="px-6 py-3 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors">
+      Voltar para Home
+    </a>
+    <a href="/produtos" class="px-6 py-3 bg-white border border-border text-primary hover:bg-surface text-xs font-bold rounded-xl transition-colors">
+      Continuar Comprando
+    </a>
+  </div>
+</div>
+
+<script>
+  // Clipboard helper
+  function copyToClipboard(id, btn) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.select();
+    input.setSelectionRange(0, 99999); // for mobile
+
+    navigator.clipboard.writeText(input.value)
+      .then(() => {
+        const origText = btn.innerText;
+        btn.innerText = 'Copiado!';
+        btn.classList.remove('bg-primary', 'hover:bg-primary-light');
+        btn.classList.add('bg-success');
+        
+        setTimeout(() => {
+          btn.innerText = origText;
+          btn.classList.remove('bg-success');
+          btn.classList.add('bg-primary', 'hover:bg-primary-light');
+        }, 2000);
+      })
+      .catch(err => {
+        console.error('Copy failed:', err);
+      });
+  }
+</script>

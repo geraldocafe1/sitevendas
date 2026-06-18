@@ -1,0 +1,53 @@
+<div class="space-y-6 font-body">
+  
+  <p class="text-xs text-text-muted">Lista completa de clientes cadastrados e seu histórico de compras.</p>
+
+  <!-- Customers Table list -->
+  <div class="bg-white border border-border rounded-2xl overflow-hidden shadow-xs">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-surface text-text-muted font-bold border-b border-border">
+            <th class="p-4 w-[25%]">Cliente</th>
+            <th class="p-4">E-mail</th>
+            <th class="p-4">Telefone</th>
+            <th class="p-4 text-center">Registrado em</th>
+            <th class="p-4 text-center">Nº de Pedidos</th>
+            <th class="p-4 text-right">Total Gasto</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% if (customers && customers.length > 0) { %>
+            <% customers.forEach(client => { %>
+              <tr>
+                <td class="p-4 font-bold text-primary">
+                  <%= client.name %>
+                </td>
+                <td class="p-4 text-text-muted">
+                  <%= client.email %>
+                </td>
+                <td class="p-4 text-text-muted">
+                  <%= client.phone || '---' %>
+                </td>
+                <td class="p-4 text-center text-text-muted">
+                  <%= new Date(client.created_at).toLocaleDateString('pt-BR') %>
+                </td>
+                <td class="p-4 text-center font-bold text-primary">
+                  <%= client.ordersCount %>
+                </td>
+                <td class="p-4 text-right font-extrabold text-success">
+                  R$ <%= client.totalSpend.toFixed(2).replace('.', ',') %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="p-12 text-center text-text-muted">Nenhum cliente cadastrado.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

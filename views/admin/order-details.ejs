@@ -1,0 +1,155 @@
+<div class="space-y-6 font-body">
+  
+  <div class="flex items-center space-x-2">
+    <a href="/admin/pedidos" class="px-3 py-1.5 bg-white border border-border text-[10px] font-bold rounded-lg hover:bg-surface transition-colors flex items-center">
+      ← Voltar para Pedidos
+    </a>
+  </div>
+
+  <!-- Main Details Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- LEFT & CENTER: Ordered Items -->
+    <div class="lg:col-span-2 bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+      <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100">Itens do Pedido</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="text-text-muted font-bold border-b border-gray-100 pb-2">
+              <th class="pb-2 w-[55%]">Item</th>
+              <th class="pb-2 text-center">Quantidade</th>
+              <th class="pb-2 text-right">Unitário</th>
+              <th class="pb-2 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% order.items.forEach(item => { %>
+              <tr>
+                <td class="py-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg overflow-hidden border border-border bg-surface flex-shrink-0">
+                      <% const img = (item.product && item.product.images && item.product.images.length > 0) ? item.product.images[0] : '/uploads/placeholder.jpg'; %>
+                      <img src="<%= typeof img === 'object' ? img.webp : img %>" class="w-full h-full object-cover" alt="<%= item.product ? item.product.name : 'Café' %>">
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-primary truncate max-w-[200px]"><%= item.product ? item.product.name : 'Produto Indefinido' %></h4>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 text-center font-semibold"><%= item.quantity %></td>
+                <td class="py-4 text-right">R$ <%= parseFloat(item.unit_price).toFixed(2).replace('.', ',') %></td>
+                <td class="py-4 text-right font-bold text-primary">R$ <%= parseFloat(item.total_price).toFixed(2).replace('.', ',') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals Block -->
+      <div class="border-t border-border pt-4 text-xs space-y-2 text-right">
+        <p class="text-text-muted">Subtotal: <strong class="text-primary ml-2">R$ <%= parseFloat(order.subtotal).toFixed(2).replace('.', ',') %></strong></p>
+        <% if (order.discount > 0) { %>
+          <p class="text-danger">Desconto: <strong class="ml-2">- R$ <%= parseFloat(order.discount).toFixed(2).replace('.', ',') %></strong></p>
+        <% } %>
+        <p class="text-text-muted">Frete: <strong class="text-primary ml-2">R$ <%= parseFloat(order.shipping_cost).toFixed(2).replace('.', ',') %></strong></p>
+        <h3 class="text-sm font-extrabold text-primary pt-2 border-t border-gray-100 inline-block">Total Geral: <span class="text-accent text-base font-black ml-2">R$ <%= parseFloat(order.total).toFixed(2).replace('.', ',') %></span></h3>
+      </div>
+    </div>
+
+    <!-- RIGHT: Address & Payment Detail sticky box -->
+    <div class="space-y-6">
+      
+      <!-- Delivery details -->
+      <div class="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+        <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100">Dados de Entrega</h3>
+        <div class="text-xs space-y-2">
+          <div>
+            <span class="text-text-muted uppercase text-[9px] font-bold block">Nome</span>
+            <strong class="text-primary"><%= order.shipping_name %></strong>
+          </div>
+          <div>
+            <span class="text-text-muted uppercase text-[9px] font-bold block">E-mail</span>
+            <span class="text-primary font-semibold"><%= order.shipping_email %></span>
+          </div>
+          <div>
+            <span class="text-text-muted uppercase text-[9px] font-bold block">Telefone</span>
+            <span class="text-primary font-semibold"><%= order.shipping_phone %></span>
+          </div>
+          <div class="border-t border-gray-50 pt-2">
+            <span class="text-text-muted uppercase text-[9px] font-bold block">Endereço</span>
+            <p class="text-primary font-semibold leading-relaxed mt-0.5">
+              <%= order.shipping_address %><br>
+              CEP: <%= order.shipping_zip %><br>
+              <%= order.shipping_city %> - <%= order.shipping_state %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment details -->
+      <div class="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+        <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100">Pagamento & Status</h3>
+        <div class="text-xs space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-text-muted">Forma de Pagamento:</span>
+            <strong class="text-primary uppercase"><%= order.payment_method %></strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-text-muted">Status do Pagamento:</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold <%= order.payment_status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+              <%= order.payment_status %>
+            </span>
+          </div>
+          <div class="border-t border-gray-50 pt-3 flex flex-col space-y-1.5">
+            <span class="text-text-muted uppercase text-[9px] font-bold block">Status do Pedido</span>
+            <!-- select control to update status directly -->
+            <select data-order-id="<%= order.id %>" 
+                    class="order-status-select w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer">
+              <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pendente</option>
+              <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Pago</option>
+              <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Enviado</option>
+              <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Entregue</option>
+              <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function updateOrderStatus(id, newStatus) {
+    fetch(`/admin/pedidos/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: newStatus, _csrf: '<%= csrfToken %>' })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Status do pedido atualizado com sucesso!');
+        }
+      })
+      .catch(() => {
+        alert('Erro ao atualizar status do pedido.');
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.order-status-select').forEach(select => {
+      select.addEventListener('change', (event) => {
+        const id = select.getAttribute('data-order-id');
+        const newStatus = event.target.value;
+        updateOrderStatus(id, newStatus);
+      });
+    });
+  });
+</script>

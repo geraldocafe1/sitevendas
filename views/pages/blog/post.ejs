@@ -1,0 +1,58 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body">
+  <!-- Breadcrumb -->
+  <%- include('../../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Blog', url: '/blog' },
+      { name: post.title, url: `/blog/${post.slug}` }
+    ] 
+  }) %>
+
+  <!-- Article -->
+  <article class="bg-white border border-border rounded-2xl overflow-hidden shadow-sm mt-4">
+    <!-- Cover Image -->
+    <div class="w-full aspect-[21/9] bg-surface overflow-hidden">
+      <img src="<%= post.cover_image || 'https://picsum.photos/800/400' %>" alt="<%= post.title %>" class="w-full h-full object-cover">
+    </div>
+
+    <!-- Details wrapper -->
+    <div class="p-6 sm:p-10 space-y-6">
+      
+      <!-- Meta info -->
+      <div class="space-y-3">
+        <div class="flex items-center space-x-2 text-[10px] text-accent font-bold uppercase tracking-wider">
+          <span><%= new Date(post.published_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+          <span>•</span>
+          <span>Por: <%= post.author ? post.author.name : 'Barista Grão Nobre' %></span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-primary font-display leading-tight tracking-tight">
+          <%= post.title %>
+        </h1>
+      </div>
+
+      <!-- Article rich HTML text -->
+      <div class="text-xs sm:text-sm text-text-muted leading-relaxed whitespace-pre-line border-t border-gray-100 pt-6 space-y-4">
+        <!-- Render unescaped HTML content since blog posts contain HTML formatting -->
+        <%- post.content %>
+      </div>
+
+      <!-- Social Share / Author bio -->
+      <div class="border-t border-gray-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-xs uppercase shadow-sm">
+            <%= post.author ? post.author.name.slice(0, 2) : 'BA' %>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-primary">Escrito por: <%= post.author ? post.author.name : 'Barista' %></h4>
+            <p class="text-[10px] text-text-muted">Especialista de Qualidade na Grão Nobre</p>
+          </div>
+        </div>
+
+        <!-- Go Back CTA -->
+        <a href="/blog" class="px-5 py-2 bg-surface hover:bg-gray-100 text-primary border border-border text-xs font-bold rounded-xl transition-colors">
+          Voltar para o Blog
+        </a>
+      </div>
+
+    </div>
+  </article>
+</div>

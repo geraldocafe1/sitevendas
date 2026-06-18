@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO & Performance Meta Tags -->
+  <title><%= typeof title !== 'undefined' ? title : 'Grão Nobre - Cafés Especiais' %></title>
+  <meta name="description" content="<%= typeof meta_description !== 'undefined' ? meta_description : 'Cafés gourmet e grãos especiais torrados com carinho artesanal.' %>">
+  
+  <!-- Canonical Link -->
+  <link rel="canonical" href="<%= storeUrl %><%= typeof page_url !== 'undefined' ? page_url : '' %>">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= storeUrl %>">
+  <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'Grão Nobre' %>">
+  <meta property="og:description" content="<%= typeof meta_description !== 'undefined' ? meta_description : 'Cafés gourmet torrados artesanalmente.' %>">
+  <meta property="og:image" content="<%= storeUrl %>/images/og-share-default.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="<%= storeUrl %>">
+  <meta property="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'Grão Nobre' %>">
+  <meta property="twitter:description" content="<%= typeof meta_description !== 'undefined' ? meta_description : 'Cafés gourmet torrados artesanalmente.' %>">
+  <meta property="twitter:image" content="<%= storeUrl %>/images/og-share-default.jpg">
+
+  <!-- Fonts: Plus Jakarta Sans (Display) & Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/app.css">
+  
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+  <!-- Google Tag Manager (Conditional Header) -->
+  <% if (gtmId) { %>
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','<%= gtmId %>');
+    </script>
+  <% } %>
+</head>
+<body class="flex flex-col min-h-full bg-surface text-text antialiased">
+  
+  <!-- Google Tag Manager (noscript) -->
+  <% if (gtmId) { %>
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=<%= gtmId %>" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+  <% } %>
+
+  <!-- Navbar -->
+  <%- include('../partials/navbar') %>
+
+  <!-- Main Content Wrapper -->
+  <main class="flex-grow">
+    <%- body %>
+  </main>
+
+  <!-- Footer -->
+  <%- include('../partials/footer') %>
+
+  <!-- LGPD Cookie Banner -->
+  <%- include('../partials/cookie-banner') %>
+
+  <!-- Scripts -->
+  <script src="/js/cart.js" defer></script>
+  <script src="/js/countdown.js" defer></script>
+  <script src="/js/search.js" defer></script>
+  <script src="/js/pwa.js" defer></script>
+</body>
+</html>

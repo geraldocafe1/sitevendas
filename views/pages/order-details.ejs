@@ -1,0 +1,175 @@
+<% 
+  const ord = order;
+  let statusText = 'Pendente';
+  let statusColor = 'text-yellow-600 bg-yellow-50 border-yellow-200';
+  
+  if (ord.status === 'paid') {
+    statusText = 'Pagamento Aprovado';
+    statusColor = 'text-green-600 bg-green-50 border-green-200';
+  } else if (ord.status === 'shipped') {
+    statusText = 'Pedido Enviado';
+    statusColor = 'text-blue-600 bg-blue-50 border-blue-200';
+  } else if (ord.status === 'delivered') {
+    statusText = 'Pedido Entregue';
+    statusColor = 'text-teal-600 bg-teal-50 border-teal-200';
+  } else if (ord.status === 'cancelled') {
+    statusText = 'Pedido Cancelado';
+    statusColor = 'text-red-600 bg-red-50 border-red-200';
+  }
+%>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body space-y-6">
+  <!-- Breadcrumb -->
+  <%- include('../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Meus Pedidos', url: '#' },
+      { name: `Detalhes #${ord.id.slice(0, 8)}`, url: `/pedidos/${ord.id}` }
+    ] 
+  }) %>
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-extrabold text-primary font-display">Detalhes do Pedido</h1>
+      <p class="text-xs text-text-muted mt-1">Realizado em <%= new Date(ord.created_at).toLocaleDateString('pt-BR') %> às <%= new Date(ord.created_at).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) %></p>
+    </div>
+    <span class="inline-flex px-3 py-1 border rounded-lg text-xs font-bold uppercase <%= statusColor %>">
+      <%= statusText %>
+    </span>
+  </div>
+
+  <!-- ORDER STATUS TIMELINE -->
+  <div class="bg-white border border-border rounded-2xl p-6 shadow-xs">
+    <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100 mb-6">Acompanhamento do Pedido</h3>
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative">
+      <!-- Line separator for desktop -->
+      <div class="hidden md:block absolute top-1/2 left-4 right-4 h-0.5 bg-gray-200 -z-10 transform -translate-y-1/2"></div>
+      
+      <!-- Step 1: Criado -->
+      <div class="flex items-center space-x-3 md:flex-col md:space-x-0 md:space-y-2 text-xs w-full md:w-fit">
+        <div class="w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center shadow-md">✓</div>
+        <div class="md:text-center">
+          <h4 class="font-bold text-primary">Criado</h4>
+          <p class="text-[9px] text-text-muted">Aguardando análise</p>
+        </div>
+      </div>
+
+      <!-- Step 2: Pago -->
+      <% 
+        const isPaid = ['paid', 'shipped', 'delivered'].includes(ord.status);
+        const circleClass = isPaid ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500';
+      %>
+      <div class="flex items-center space-x-3 md:flex-col md:space-x-0 md:space-y-2 text-xs w-full md:w-fit">
+        <div class="w-8 h-8 rounded-full <%= circleClass %> font-bold flex items-center justify-center shadow-md">
+          <%= isPaid ? '✓' : '2' %>
+        </div>
+        <div class="md:text-center">
+          <h4 class="font-bold <%= isPaid ? 'text-primary' : 'text-text-muted' %>">Pago</h4>
+          <p class="text-[9px] text-text-muted">Pagamento confirmado</p>
+        </div>
+      </div>
+
+      <!-- Step 3: Enviado -->
+      <% 
+        const isShipped = ['shipped', 'delivered'].includes(ord.status);
+        const circleShipped = isShipped ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500';
+      %>
+      <div class="flex items-center space-x-3 md:flex-col md:space-x-0 md:space-y-2 text-xs w-full md:w-fit">
+        <div class="w-8 h-8 rounded-full <%= circleShipped %> font-bold flex items-center justify-center shadow-md">
+          <%= isShipped ? '✓' : '3' %>
+        </div>
+        <div class="md:text-center">
+          <h4 class="font-bold <%= isShipped ? 'text-primary' : 'text-text-muted' %>">Enviado</h4>
+          <p class="text-[9px] text-text-muted">Coletado pela transportadora</p>
+        </div>
+      </div>
+
+      <!-- Step 4: Entregue -->
+      <% 
+        const isDelivered = ord.status === 'delivered';
+        const circleDelivered = isDelivered ? 'bg-teal-500 text-white' : 'bg-gray-200 text-gray-500';
+      %>
+      <div class="flex items-center space-x-3 md:flex-col md:space-x-0 md:space-y-2 text-xs w-full md:w-fit">
+        <div class="w-8 h-8 rounded-full <%= circleDelivered %> font-bold flex items-center justify-center shadow-md">
+          <%= isDelivered ? '✓' : '4' %>
+        </div>
+        <div class="md:text-center">
+          <h4 class="font-bold <%= isDelivered ? 'text-teal-600' : 'text-text-muted' %>">Entregue</h4>
+          <p class="text-[9px] text-text-muted">Entregue no endereço</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILS ROW -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- LEFT: Items Table -->
+    <div class="lg:col-span-2 bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+      <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100">Itens Comprados</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="text-text-muted font-bold border-b border-gray-100 pb-2">
+              <th class="pb-2">Produto</th>
+              <th class="pb-2 text-center">Qtd</th>
+              <th class="pb-2 text-right">Unitário</th>
+              <th class="pb-2 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% ord.items.forEach(item => { %>
+              <tr>
+                <td class="py-3 font-semibold text-primary">
+                  <%= item.product ? item.product.name : 'Café Nobre' %>
+                </td>
+                <td class="py-3 text-center font-bold"><%= item.quantity %></td>
+                <td class="py-3 text-right">R$ <%= parseFloat(item.unit_price).toFixed(2).replace('.', ',') %></td>
+                <td class="py-3 text-right font-bold text-primary">R$ <%= parseFloat(item.total_price).toFixed(2).replace('.', ',') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Financial calculations -->
+      <div class="border-t border-border pt-4 text-xs space-y-2 text-right">
+        <p class="text-text-muted">Subtotal: <strong>R$ <%= parseFloat(ord.subtotal).toFixed(2).replace('.', ',') %></strong></p>
+        <% if (ord.discount > 0) { %>
+          <p class="text-danger font-semibold">Desconto: <strong>- R$ <%= parseFloat(ord.discount).toFixed(2).replace('.', ',') %></strong></p>
+        <% } %>
+        <p class="text-text-muted">Frete: <strong>R$ <%= parseFloat(ord.shipping_cost).toFixed(2).replace('.', ',') %></strong></p>
+        <h3 class="text-sm font-extrabold text-primary border-t border-gray-100 pt-2 inline-block">Total Geral: <span class="text-accent text-base font-black ml-2">R$ <%= parseFloat(ord.total).toFixed(2).replace('.', ',') %></span></h3>
+      </div>
+    </div>
+
+    <!-- RIGHT: Info Cards -->
+    <div class="space-y-6">
+      
+      <!-- Shipping Address -->
+      <div class="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-3">
+        <h3 class="text-xs font-bold text-primary uppercase pb-2 border-b border-gray-100">Entrega</h3>
+        <p class="text-xs text-primary font-semibold leading-relaxed">
+          <%= ord.shipping_name %><br>
+          <%= ord.shipping_address %><br>
+          CEP: <%= ord.shipping_zip %><br>
+          <%= ord.shipping_city %> - <%= ord.shipping_state %>
+        </p>
+      </div>
+
+      <!-- Payment details -->
+      <div class="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-3">
+        <h3 class="text-xs font-bold text-primary uppercase pb-2 border-b border-gray-100">Pagamento</h3>
+        <ul class="text-xs space-y-1.5 font-semibold text-primary">
+          <li class="flex justify-between"><span class="text-text-muted">Método:</span> <span class="uppercase"><%= ord.payment_method %></span></li>
+          <li class="flex justify-between"><span class="text-text-muted">Status:</span> <span class="uppercase <%= ord.payment_status === 'approved' ? 'text-success' : 'text-yellow-600' %>"><%= ord.payment_status %></span></li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,47 @@
+<div id="<%= modalId || 'base-modal' %>" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="toggleModal('<%= modalId || \'base-modal\' %>')"></div>
+
+  <!-- Content Container -->
+  <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-100">
+      <!-- Header -->
+      <div class="bg-primary text-white px-6 py-4 flex items-center justify-between">
+        <h3 class="text-lg font-bold font-display" id="modal-title">
+          <%= modalTitle || 'Informação' %>
+        </h3>
+        <button type="button" class="text-white hover:text-accent focus:outline-none" onclick="toggleModal('<%= modalId || \'base-modal\' %>')">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="bg-white px-6 py-4">
+        <div class="text-sm text-text">
+          <%- modalBody || '' %>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-surface px-6 py-4 flex flex-row-reverse space-x-2 space-x-reverse border-t border-border">
+        <button type="button" class="px-4 py-2 bg-primary hover:bg-primary-light text-white font-medium text-sm rounded-lg shadow-sm" onclick="toggleModal('<%= modalId || \'base-modal\' %>')">
+          <%= modalConfirmText || 'Fechar' %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.toggle('hidden');
+      el.classList.toggle('flex');
+    }
+  }
+</script>

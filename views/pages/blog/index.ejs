@@ -1,0 +1,57 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body">
+  <!-- Breadcrumb -->
+  <%- include('../../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Blog', url: '/blog' }
+    ] 
+  }) %>
+
+  <div class="text-center max-w-xl mx-auto mb-12 mt-4 space-y-2">
+    <h1 class="text-3xl font-extrabold text-primary font-display">Blog Grão Nobre</h1>
+    <p class="text-xs sm:text-sm text-text-muted">Aprenda tudo sobre cafés especiais, técnicas de preparo, torras e novidades com nossos baristas.</p>
+  </div>
+
+  <!-- Articles Grid -->
+  <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% posts.forEach(post => { %>
+        <article class="bg-white rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+          <a href="/blog/<%= post.slug %>" class="block aspect-video w-full overflow-hidden bg-surface">
+            <img src="<%= post.cover_image || 'https://picsum.photos/400/225' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+          </a>
+          <div class="p-6 flex-grow flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <span class="text-[10px] text-accent font-bold uppercase tracking-wider">
+                <%= new Date(post.published_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+              </span>
+              <h2 class="text-sm font-bold text-primary leading-snug line-clamp-2 hover:text-primary-light">
+                <a href="/blog/<%= post.slug %>"><%= post.title %></a>
+              </h2>
+              <p class="text-xs text-text-muted leading-relaxed line-clamp-3">
+                <%= post.excerpt %>
+              </p>
+            </div>
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100 text-[10px] text-text-muted">
+              <span>Por: <strong><%= post.author ? post.author.name : 'Barista' %></strong></span>
+              <a href="/blog/<%= post.slug %>" class="text-xs font-bold text-primary hover:text-primary-light flex items-center space-x-1 border-b border-primary hover:border-primary-light pb-0.5">
+                <span>Ler Mais</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="bg-white border border-border rounded-2xl p-16 text-center flex flex-col items-center justify-center space-y-4 max-w-lg mx-auto">
+      <div class="w-16 h-16 rounded-full bg-surface flex items-center justify-center text-3xl">📝</div>
+      <h3 class="text-lg font-bold text-primary font-display">Nenhum post publicado</h3>
+      <p class="text-xs text-text-muted leading-relaxed">
+        Nossa equipe de baristas já está escrevendo conteúdos fresquinhos para você. Fique ligado!
+      </p>
+      <a href="/" class="px-6 py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+        Voltar para a Home
+      </a>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,111 @@
+<% 
+  const p = product;
+  console.log('EJS product-card DEBUG:', p.name, 'images:', p.images, 'type:', typeof p.images, 'isArray:', Array.isArray(p.images));
+  const image = (p.images && p.images.length > 0) ? p.images[0] : '/uploads/placeholder.jpg';
+  const isWebpObj = typeof image === 'object' && image.webp;
+  
+  // Calculate discount percent
+  let discountPercent = 0;
+  if (p.compare_price && parseFloat(p.compare_price) > parseFloat(p.price)) {
+    const valDiff = parseFloat(p.compare_price) - parseFloat(p.price);
+    discountPercent = Math.round((valDiff / parseFloat(p.compare_price)) * 100);
+  }
+%>
+<div class="group relative bg-surface-alt rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col font-body h-full">
+  <!-- Image Gallery / Cover -->
+  <div class="relative w-full aspect-square bg-surface overflow-hidden">
+    <!-- Badges -->
+    <div class="absolute top-3 left-3 z-10 flex flex-col space-y-1.5 items-start">
+      <% if (discountPercent > 0) { %>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-danger text-white shadow-sm">
+          <%= discountPercent %>% OFF
+        </span>
+      <% } %>
+      <% if (p.is_featured) { %>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-accent text-primary shadow-sm">
+          DESTAQUE
+        </span>
+      <% } %>
+    </div>
+
+    <!-- Wishlist Button -->
+    <button type="button" 
+            class="absolute top-3 right-3 z-10 w-9 h-9 bg-white bg-opacity-80 backdrop-blur-xs rounded-full flex items-center justify-center text-text-muted hover:text-danger hover:bg-white transition-all duration-200 shadow-xs focus:outline-none"
+            data-wishlist-id="<%= p.id %>"
+            aria-label="Adicionar aos favoritos">
+      <svg class="w-5 h-5 fill-none stroke-current transition-colors" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+      </svg>
+    </button>
+
+    <!-- Picture element with webp fallback -->
+    <a href="/produtos/<%= p.slug %>" class="block w-full h-full">
+      <% if (isWebpObj) { %>
+        <picture class="w-full h-full">
+          <source srcset="<%= image.webp %>" type="image/webp">
+          <img src="<%= image.jpg %>" 
+               alt="<%= p.name %>" 
+               class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" 
+               loading="lazy">
+        </picture>
+      <% } else { %>
+        <!-- Image is a string path, check if it's external placeholder -->
+        <% const isExternal = typeof image === 'string' && (image.startsWith('http') || image.startsWith('https')); %>
+        <img src="<%= image %>" 
+             alt="<%= p.name %>" 
+             class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" 
+             loading="lazy">
+      <% } %>
+    </a>
+  </div>
+
+  <!-- Details -->
+  <div class="p-5 flex-1 flex flex-col justify-between">
+    <div>
+      <p class="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-1">Cafés Especiais</p>
+      <h3 class="text-sm font-bold text-primary mb-2 line-clamp-2 hover:text-primary-light">
+        <a href="/produtos/<%= p.slug %>"><%= p.name %></a>
+      </h3>
+
+      <!-- Review stars -->
+      <div class="flex items-center mb-3">
+        <%- include('review-stars', { rating: p.rating || 4.8 }) %>
+        <span class="text-[10px] text-text-muted ml-1.5">(<%= p.reviews_count || 12 %>)</span>
+      </div>
+    </div>
+
+    <div>
+      <!-- Price block -->
+      <div class="flex items-baseline space-x-2 mb-4">
+        <span class="text-base font-extrabold text-primary">R$ <%= parseFloat(p.price).toFixed(2).replace('.', ',') %></span>
+        <% if (p.compare_price) { %>
+          <span class="text-xs text-text-muted line-through">R$ <%= parseFloat(p.compare_price).toFixed(2).replace('.', ',') %></span>
+        <% } %>
+      </div>
+
+      <!-- Add to Cart CTA -->
+      <% if (p.stock > 0) { %>
+        <button type="button" 
+                class="w-full py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors duration-200"
+                data-cart-add-id="<%= p.id %>"
+                data-cart-add-name="<%= p.name %>"
+                data-cart-add-price="<%= p.price %>"
+                data-cart-add-sku="<%= p.sku %>"
+                data-cart-add-weight="<%= p.weight_kg %>"
+                data-cart-add-image="<%= isWebpObj ? image.webp : image %>"
+                data-cart-add-slug="<%= p.slug %>">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          <span>Adicionar</span>
+        </button>
+      <% } else { %>
+        <button type="button" 
+                class="w-full py-2.5 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed flex items-center justify-center space-x-2" 
+                disabled>
+          <span>Esgotado</span>
+        </button>
+      <% } %>
+    </div>
+  </div>
+</div>

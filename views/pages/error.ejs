@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Erro - Grão Nobre' %></title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="h-full bg-surface flex flex-col items-center justify-center p-6 font-body text-center">
+  <div class="max-w-md w-full bg-white border border-border rounded-2xl shadow-xl p-8 space-y-6">
+    <!-- Error Code Badge -->
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary bg-opacity-5 text-accent text-3xl font-extrabold font-display">
+      <%= typeof status !== 'undefined' ? status : '500' %>
+    </div>
+    
+    <div class="space-y-2">
+      <h1 class="text-xl font-extrabold text-primary font-display tracking-tight">
+        <%= typeof title !== 'undefined' ? title : 'Algo deu errado!' %>
+      </h1>
+      <p class="text-xs text-text-muted leading-relaxed">
+        <%= typeof message !== 'undefined' ? message : 'Erro desconhecido. Por favor, tente novamente mais tarde.' %>
+      </p>
+    </div>
+
+    <div class="pt-4 border-t border-gray-100 flex flex-col space-y-2">
+      <a href="/" class="w-full py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+        Voltar para a Página Inicial
+      </a>
+      <a href="/produtos" class="w-full py-2.5 bg-surface hover:bg-gray-100 text-primary border border-border text-xs font-bold rounded-xl transition-colors duration-200">
+        Ver Produtos da Loja
+      </a>
+    </div>
+  </div>
+</body>
+</html>

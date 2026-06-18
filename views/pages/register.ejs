@@ -1,0 +1,138 @@
+<div class="max-w-md w-full mx-auto px-6 py-16 font-body">
+  <div class="bg-white border border-border rounded-2xl shadow-xl p-8 space-y-6">
+    <div class="text-center space-y-2">
+      <h1 class="text-2xl font-extrabold text-primary font-display tracking-tight">Crie sua Conta</h1>
+      <p class="text-xs text-text-muted">Cadastre-se na Grão Nobre para começar a comprar cafés premium.</p>
+    </div>
+
+    <!-- Alert dynamic feedback wrapper -->
+    <div id="register-alert-container" class="hidden"></div>
+
+    <form id="register-form" class="space-y-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="space-y-1">
+        <label for="name" class="text-xs font-bold text-primary uppercase">Nome Completo *</label>
+        <input type="text" 
+               name="name" 
+               id="name" 
+               required 
+               placeholder="Seu nome completo"
+               class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+      </div>
+      
+      <div class="space-y-1">
+        <label for="email" class="text-xs font-bold text-primary uppercase">E-mail *</label>
+        <input type="email" 
+               name="email" 
+               id="email" 
+               required 
+               placeholder="voce@email.com"
+               class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+      </div>
+
+      <div class="space-y-1">
+        <label for="phone" class="text-xs font-bold text-primary uppercase">Telefone *</label>
+        <input type="tel" 
+               name="phone" 
+               id="phone" 
+               required 
+               placeholder="(11) 99999-9999"
+               class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+      </div>
+
+      <div class="space-y-1">
+        <label for="password" class="text-xs font-bold text-primary uppercase">Senha *</label>
+        <input type="password" 
+               name="password" 
+               id="password" 
+               required 
+               placeholder="Mínimo de 6 caracteres"
+               class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+      </div>
+
+      <button type="submit" class="w-full py-3 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+        Cadastrar Conta
+      </button>
+    </form>
+
+    <div class="pt-4 border-t border-gray-100 text-center text-xs">
+      <p class="text-text-muted">Já tem uma conta? <a href="/login<%= redirect ? '?redirect=' + encodeURIComponent(redirect) : '' %>" class="text-primary-light font-bold hover:underline">Entre por aqui</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('register-form');
+    const alertContainer = document.getElementById('register-alert-container');
+    const redirectUrl = '<%= redirect || "/" %>';
+
+    // Mask phone number (11) 99999-9999
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2,7)}-${value.slice(7,11)}`;
+        } else if (value.length > 5) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2,6)}-${value.slice(6,10)}`;
+        } else if (value.length > 2) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2)}`;
+        } else if (value.length > 0) {
+          e.target.value = `(${value}`;
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!alertContainer) return;
+
+        alertContainer.className = 'hidden';
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, phone, password })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              showAlert('error', data.error);
+            } else if (data.errors) {
+              showAlert('error', data.errors.map(err => err.msg).join('<br>'));
+            } else {
+              showAlert('success', 'Cadastro efetuado com sucesso! Redirecionando...');
+              setTimeout(() => {
+                window.location.href = redirectUrl;
+              }, 1000);
+            }
+          })
+          .catch(() => {
+            showAlert('error', 'Erro de conexão com o servidor.');
+          });
+      });
+    }
+
+    function showAlert(type, message) {
+      let bgColor = 'bg-blue-50 text-blue-800 border-blue-200';
+      if (type === 'success') {
+        bgColor = 'bg-green-50 text-green-800 border-green-200';
+      } else if (type === 'error') {
+        bgColor = 'bg-red-50 text-red-800 border-red-200';
+      }
+
+      alertContainer.className = `p-4 border rounded-xl ${bgColor} text-xs font-semibold leading-relaxed`;
+      alertContainer.innerHTML = message;
+    }
+  });
+</script>

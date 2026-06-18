@@ -1,0 +1,534 @@
+<% 
+  const p = product;
+  const mainImage = (p.images && p.images.length > 0) ? p.images[0] : '/uploads/placeholder.jpg';
+  const isWebpObj = typeof mainImage === 'object' && mainImage.webp;
+  
+  let discountPercent = 0;
+  if (p.compare_price && parseFloat(p.compare_price) > parseFloat(p.price)) {
+    const valDiff = parseFloat(p.compare_price) - parseFloat(p.price);
+    discountPercent = Math.round((valDiff / parseFloat(p.compare_price)) * 100);
+  }
+%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body">
+  <!-- Breadcrumb -->
+  <%- include('../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Produtos', url: '/produtos' },
+      { name: p.name, url: `/produtos/${p.slug}` }
+    ] 
+  }) %>
+
+  <!-- MAIN PRODUCT SECTION -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-6">
+    
+    <!-- LEFT: Image Gallery with Zoom on Hover -->
+    <div class="space-y-4">
+      <!-- Main Zoom Window -->
+      <div class="relative aspect-square w-full rounded-2xl border border-border bg-white overflow-hidden group">
+        <picture id="main-product-picture" class="w-full h-full">
+          <% if (isWebpObj) { %>
+            <source srcset="<%= mainImage.webp %>" type="image/webp">
+            <img id="main-product-image" src="<%= mainImage.jpg %>" alt="<%= p.name %>" class="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-125 cursor-zoom-in">
+          <% } else { %>
+            <img id="main-product-image" src="<%= mainImage %>" alt="<%= p.name %>" class="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-125 cursor-zoom-in">
+          <% } %>
+        </picture>
+        
+        <!-- Badges -->
+        <div class="absolute top-4 left-4 z-10 flex flex-col space-y-1.5 items-start">
+          <% if (discountPercent > 0) { %>
+            <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-danger text-white shadow-md">
+              <%= discountPercent %>% OFF
+            </span>
+          <% } %>
+          <% if (p.is_featured) { %>
+            <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-accent text-primary shadow-md">
+              DESTAQUE
+            </span>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Thumbnails -->
+      <% if (p.images && p.images.length > 1) { %>
+        <div class="flex space-x-3 overflow-x-auto py-1">
+          <% p.images.forEach((img, idx) => { %>
+            <% const isThumbWebp = typeof img === 'object' && img.webp; %>
+            <button type="button" 
+                    class="w-20 h-20 border rounded-lg overflow-hidden bg-white hover:border-accent focus:outline-none flex-shrink-0 transition-colors <%= idx === 0 ? 'border-accent' : 'border-border' %>"
+                    onclick="changeProductImage('<%= isThumbWebp ? img.webp : img %>', '<%= isThumbWebp ? img.jpg : img %>', this)">
+              <img src="<%= isThumbWebp ? img.webp : img %>" alt="Visualização <%= idx + 1 %>" class="w-full h-full object-cover">
+            </button>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- RIGHT: Buy Box and CRO triggers -->
+    <div class="space-y-6">
+      
+      <!-- Title & Basic Info -->
+      <div class="space-y-2">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-primary font-display leading-tight"><%= p.name %></h1>
+        <div class="flex items-center space-x-3">
+          <%- include('../partials/review-stars', { rating: avgRating || 4.8 }) %>
+          <span class="text-xs text-text-muted">(<%= reviewsCount %> avaliações de clientes)</span>
+          <span class="text-xs text-gray-300">|</span>
+          <span class="text-xs text-text-muted">SKU: <strong class="text-primary"><%= p.sku %></strong></span>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="bg-surface p-4 rounded-2xl border border-border flex items-baseline justify-between">
+        <div>
+          <span class="text-xs text-text-muted block">Preço Nobre:</span>
+          <div class="flex items-baseline space-x-2">
+            <span class="text-2xl font-extrabold text-primary">R$ <%= parseFloat(p.price).toFixed(2).replace('.', ',') %></span>
+            <% if (p.compare_price) { %>
+              <span class="text-sm text-text-muted line-through">R$ <%= parseFloat(p.compare_price).toFixed(2).replace('.', ',') %></span>
+            <% } %>
+          </div>
+        </div>
+        <span class="text-[10px] text-success font-extrabold tracking-wider bg-green-50 px-2.5 py-1 border border-green-200 rounded-md">
+          FRETE GRÁTIS ACIMA DE R$150
+        </span>
+      </div>
+
+      <!-- CRO triggers: Urgency Counter & Social Proof -->
+      <div class="border border-border rounded-2xl p-5 bg-white space-y-4">
+        <!-- Social Proof -->
+        <div class="flex items-center space-x-2.5 text-xs text-text">
+          <span class="flex h-2.5 w-2.5 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
+          </span>
+          <p>
+            Mais de <strong class="text-accent font-bold"><%= recentBuyersCount %> pessoas</strong> compraram este café nas últimas 24h.
+          </p>
+        </div>
+
+        <!-- Stock levels alert (CRO) -->
+        <% if (p.stock > 0 && p.stock < 10) { %>
+          <div class="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2 text-xs text-danger font-bold">
+            <span>⚠️</span>
+            <span>Estoque Crítico: Restam apenas <%= p.stock %> unidades!</span>
+          </div>
+        <% } %>
+
+        <!-- Urgency countdown -->
+        <div class="border-t border-gray-100 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p class="text-xs text-text-muted">Aproveite! Oferta termina em:</p>
+          <div class="flex items-center space-x-2 text-primary font-bold text-xs" data-countdown="24h">
+            <span id="countdown-hours" class="bg-primary text-white px-2 py-1 rounded-md">00</span>
+            <span class="text-text-muted">:</span>
+            <span id="countdown-minutes" class="bg-primary text-white px-2 py-1 rounded-md">00</span>
+            <span class="text-text-muted">:</span>
+            <span id="countdown-seconds" class="bg-primary text-white px-2 py-1 rounded-md">00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Purchase selection -->
+      <div class="space-y-4 pt-2">
+        <!-- Variant selectors: Grind level (moagem) -->
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-primary uppercase">Tipo de Moagem</label>
+          <div class="flex gap-2.5">
+            <button type="button" class="px-4 py-2 border border-primary text-xs font-bold rounded-xl bg-primary text-white focus:outline-none">
+              Em Grãos
+            </button>
+            <button type="button" class="px-4 py-2 border border-border text-xs font-bold rounded-xl text-primary hover:bg-surface focus:outline-none">
+              Moído (Filtro)
+            </button>
+          </div>
+        </div>
+
+        <!-- CTA Operations (Add to cart / Wishlist) -->
+        <div class="flex items-center space-x-3">
+          <!-- Add to cart -->
+          <% if (p.stock > 0) { %>
+            <button type="button" 
+                    id="btn-buy-now"
+                    class="flex-1 py-4 bg-primary hover:bg-primary-light text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2"
+                    data-cart-add-id="<%= p.id %>"
+                    data-cart-add-name="<%= p.name %>"
+                    data-cart-add-price="<%= p.price %>"
+                    data-cart-add-sku="<%= p.sku %>"
+                    data-cart-add-weight="<%= p.weight_kg %>"
+                    data-cart-add-image="<%= isWebpObj ? mainImage.webp : mainImage %>"
+                    data-cart-add-slug="<%= p.slug %>">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span>Comprar Agora</span>
+            </button>
+          <% } else { %>
+            <button type="button" 
+                    class="flex-1 py-4 bg-gray-100 text-gray-400 font-bold text-xs rounded-xl cursor-not-allowed" 
+                    disabled>
+              Fora de Estoque
+            </button>
+          <% } %>
+
+          <!-- Heart Wishlist -->
+          <button type="button" 
+                  class="p-4 border border-border hover:border-danger hover:text-danger rounded-xl text-text-muted focus:outline-none transition-colors"
+                  data-wishlist-id="<%= p.id %>"
+                  aria-label="Adicionar aos Favoritos">
+            <svg class="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shipping Simulator -->
+      <div class="border-t border-border pt-6 space-y-3">
+        <label for="shipping-simulator-cep" class="text-xs font-bold text-primary uppercase block">Calcular Frete</label>
+        <div class="flex space-x-2">
+          <input type="text" 
+                 id="shipping-simulator-cep" 
+                 placeholder="00000-000" 
+                 maxlength="9"
+                 class="bg-surface border border-border rounded-xl px-3 py-2 text-xs flex-1 focus:outline-none">
+          <button type="button" 
+                  id="btn-simulate-shipping"
+                  class="px-4 py-2 bg-white border border-border text-xs font-bold rounded-xl text-primary hover:bg-surface transition-colors">
+            Calcular
+          </button>
+        </div>
+        <div id="shipping-simulator-result" class="text-xs text-text-muted hidden"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PRODUCT DESCRIPTION / DETAILS -->
+  <div class="mt-16 border-t border-border pt-12">
+    <h2 class="text-lg font-bold text-primary font-display mb-6 pb-2 border-b border-border">Detalhes do Produto</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="md:col-span-2 space-y-4">
+        <h3 class="text-sm font-bold text-primary">Descrição</h3>
+        <p class="text-xs sm:text-sm text-text-muted leading-relaxed whitespace-pre-line">
+          <%= p.description %>
+        </p>
+      </div>
+      <div class="space-y-4 bg-white border border-border rounded-2xl p-6 h-fit">
+        <h3 class="text-xs font-bold text-primary uppercase pb-2 border-b border-gray-100">Ficha Técnica</h3>
+        <ul class="space-y-2 text-xs">
+          <li class="flex justify-between"><span class="text-text-muted">SKU:</span> <strong class="text-primary"><%= p.sku %></strong></li>
+          <li class="flex justify-between"><span class="text-text-muted">Peso Líquido:</span> <strong class="text-primary"><%= (parseFloat(p.weight_kg) * 1000) %>g</strong></li>
+          <li class="flex justify-between"><span class="text-text-muted">Espécie:</span> <strong class="text-primary">100% Arábica</strong></li>
+          <li class="flex justify-between"><span class="text-text-muted">Origem:</span> <strong class="text-primary">Brasil</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CROSS-SELL / BOUGHT TOGETHER (CRO) -->
+  <% if (typeof crossSellProducts !== 'undefined' && crossSellProducts.length > 0) { %>
+    <div class="mt-16 bg-white border border-border rounded-2xl p-8">
+      <h2 class="text-md font-bold text-primary font-display mb-6">Comprados Juntos</h2>
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <!-- Current Item -->
+          <div class="flex items-center space-x-3">
+            <div class="w-16 h-16 border border-border bg-surface rounded-xl overflow-hidden">
+              <img src="<%= isWebpObj ? mainImage.webp : mainImage %>" class="w-full h-full object-cover" alt="Produto atual">
+            </div>
+            <div>
+              <p class="text-xs font-bold text-primary truncate max-w-[150px]"><%= p.name %></p>
+              <p class="text-xs text-text-muted">R$ <%= parseFloat(p.price).toFixed(2).replace('.', ',') %></p>
+            </div>
+          </div>
+
+          <span class="text-lg font-bold text-text-muted">+</span>
+
+          <!-- Cross sell items -->
+          <% crossSellProducts.forEach((cross, idx) => { %>
+            <% const crossImg = (cross.images && cross.images.length > 0) ? cross.images[0] : '/uploads/placeholder.jpg'; %>
+            <% const isCrossWebp = typeof crossImg === 'object' && crossImg.webp; %>
+            <div class="flex items-center space-x-3">
+              <div class="w-16 h-16 border border-border bg-surface rounded-xl overflow-hidden">
+                <img src="<%= isCrossWebp ? crossImg.webp : crossImg %>" class="w-full h-full object-cover" alt="<%= cross.name %>">
+              </div>
+              <div>
+                <p class="text-xs font-bold text-primary truncate max-w-[150px]"><%= cross.name %></p>
+                <p class="text-xs text-text-muted">R$ <%= parseFloat(cross.price).toFixed(2).replace('.', ',') %></p>
+              </div>
+            </div>
+            <% if (idx < crossSellProducts.length - 1) { %>
+              <span class="text-lg font-bold text-text-muted">+</span>
+            <% } %>
+          <% }) %>
+        </div>
+
+        <!-- Bundle Checkout CTA -->
+        <% 
+          let bundlePrice = parseFloat(p.price);
+          crossSellProducts.forEach(cross => { bundlePrice += parseFloat(cross.price); });
+        %>
+        <div class="text-center lg:text-right space-y-3">
+          <p class="text-xs text-text-muted">Comprar este pacote completo por:</p>
+          <p class="text-xl font-extrabold text-primary">R$ <%= bundlePrice.toFixed(2).replace('.', ',') %></p>
+          <button type="button" 
+                  id="btn-buy-bundle"
+                  class="px-6 py-3 bg-accent hover:bg-yellow-600 text-primary font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2"
+                  data-bundle-items='[{"id":"<%= p.id %>", "name":"<%= p.name %>", "price":<%= p.price %>, "sku":"<%= p.sku %>", "weight":<%= p.weight_kg %>, "image":"<%= isWebpObj ? mainImage.webp : mainImage %>", "slug":"<%= p.slug %>"}<%= crossSellProducts.map(c => `,{"id":"${c.id}", "name":"${c.name}", "price":${c.price}, "sku":"${c.sku}", "weight":${c.weight_kg}, "image":"${typeof c.images[0] === 'object' ? c.images[0].webp : c.images[0]}", "slug":"${c.slug}"}`).join('') %>]'>
+            <span>Adicionar Pacote</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- REVIEWS SECTION -->
+  <div class="mt-16 bg-white border border-border rounded-2xl p-8">
+    <h2 class="text-lg font-bold text-primary font-display mb-8 pb-2 border-b border-border">Avaliações dos Clientes</h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <!-- Ratings Summary -->
+      <div class="space-y-6">
+        <div class="flex items-center space-x-4">
+          <span class="text-5xl font-extrabold text-primary font-display"><%= avgRating || 4.8 %></span>
+          <div>
+            <%- include('../partials/review-stars', { rating: avgRating || 4.8 }) %>
+            <p class="text-[10px] text-text-muted mt-1">Média baseada em <%= reviewsCount %> avaliações</p>
+          </div>
+        </div>
+
+        <!-- Rating checklist graph -->
+        <div class="space-y-2">
+          <% [5, 4, 3, 2, 1].forEach(stars => { %>
+            <% 
+              const count = ratingCounts[stars] || 0;
+              const percent = reviewsCount > 0 ? Math.round((count / reviewsCount) * 100) : 0;
+            %>
+            <div class="flex items-center text-xs">
+              <span class="w-12 text-text-muted font-semibold"><%= stars %> estrelas</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full mx-3 overflow-hidden">
+                <div class="h-full bg-accent" style="width: <%= percent %>%"></div>
+              </div>
+              <span class="w-8 text-right text-text-muted font-bold"><%= count %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Reviews list -->
+      <div class="lg:col-span-2 space-y-6 divide-y divide-gray-100">
+        <div class="max-h-96 overflow-y-auto pr-3 space-y-6">
+          <% if (reviews && reviews.length > 0) { %>
+            <% reviews.forEach(review => { %>
+              <div class="pt-6 first:pt-0 space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-primary"><%= review.user ? review.user.name : 'Cliente' %></h4>
+                  <%- include('../partials/review-stars', { rating: review.rating }) %>
+                </div>
+                <p class="text-xs text-text-muted leading-relaxed">
+                  <%= review.comment %>
+                </p>
+                <span class="text-[9px] text-gray-400 block"><%= new Date(review.created_at).toLocaleDateString('pt-BR') %></span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-xs text-text-muted text-center py-6">Este café ainda não tem avaliações aprovadas. Seja o primeiro!</p>
+          <% } %>
+        </div>
+
+        <!-- Write a Review Form -->
+        <div class="pt-8">
+          <h3 class="text-sm font-bold text-primary mb-4">Enviar Avaliação</h3>
+          <% if (typeof user !== 'undefined' && user) { %>
+            <form id="submit-review-form" class="space-y-4">
+              <input type="hidden" name="product_id" value="<%= p.id %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              
+              <!-- Stars selector -->
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-primary uppercase">Sua Nota</label>
+                <div class="flex space-x-1" id="review-stars-selector">
+                  <% for(let i = 1; i <= 5; i++) { %>
+                    <button type="button" class="text-gray-300 hover:text-accent focus:outline-none text-2xl transition-colors cursor-pointer" onclick="setReviewRating(<%= i %>)" data-rating-val="<%= i %>">★</button>
+                  <% } %>
+                </div>
+                <input type="hidden" name="rating" id="review-rating-input" required value="">
+              </div>
+
+              <!-- Comment field -->
+              <div class="space-y-1">
+                <label for="review-comment" class="text-xs font-bold text-primary uppercase">Comentário</label>
+                <textarea name="comment" 
+                          id="review-comment" 
+                          rows="4" 
+                          required 
+                          placeholder="Compartilhe sua experiência sensorial com este café especial..." 
+                          class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:outline-none"></textarea>
+              </div>
+
+              <div id="review-feedback" class="text-xs hidden"></div>
+
+              <button type="submit" class="py-2.5 px-6 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+                Enviar Avaliação
+              </button>
+            </form>
+          <% } else { %>
+            <div class="p-4 bg-surface border border-border rounded-xl text-center text-xs">
+              Para enviar uma avaliação, por favor, <a href="/login?redirect=/produtos/<%= p.slug %>" class="text-primary-light font-bold hover:underline">faça login na sua conta</a>.
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED PRODUCTS -->
+  <% if (typeof relatedProducts !== 'undefined' && relatedProducts.length > 0) { %>
+    <div class="mt-16">
+      <h2 class="text-lg font-bold text-primary font-display mb-8">Quem viu este café também se interessou por:</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <% relatedProducts.forEach(prod => { %>
+          <div>
+            <%- include('../partials/product-card', { product: prod }) %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // Script helper to change main image in details page
+  function changeProductImage(webpSrc, jpgSrc, btn) {
+    const mainImg = document.getElementById('main-product-image');
+    const mainPic = document.getElementById('main-product-picture');
+    
+    if (mainImg) {
+      mainImg.src = jpgSrc;
+    }
+
+    if (mainPic) {
+      const source = mainPic.querySelector('source');
+      if (source) {
+        source.srcset = webpSrc;
+      }
+    }
+
+    // Toggle border highlight on thumbnails
+    const thumbs = btn.parentElement.querySelectorAll('button');
+    thumbs.forEach(t => t.classList.remove('border-accent'));
+    thumbs.forEach(t => t.classList.add('border-border'));
+    btn.classList.remove('border-border');
+    btn.classList.add('border-accent');
+  }
+
+  // E-mail / Review Form star helper
+  function setReviewRating(val) {
+    const input = document.getElementById('review-rating-input');
+    if (input) {
+      input.value = val;
+    }
+
+    const stars = document.querySelectorAll('#review-stars-selector button');
+    stars.forEach(s => {
+      const starVal = parseInt(s.getAttribute('data-rating-val'), 10);
+      if (starVal <= val) {
+        s.classList.remove('text-gray-300');
+        s.classList.add('text-accent');
+      } else {
+        s.classList.remove('text-accent');
+        s.classList.add('text-gray-300');
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Shipping simulation trigger
+    const simBtn = document.getElementById('btn-simulate-shipping');
+    if (simBtn) {
+      simBtn.addEventListener('click', () => {
+        const cepInput = document.getElementById('shipping-simulator-cep');
+        const resultDiv = document.getElementById('shipping-simulator-result');
+        if (!cepInput || !resultDiv) return;
+
+        const cleanCEP = cepInput.value.replace(/\D/g, '');
+        if (cleanCEP.length !== 8) {
+          resultDiv.innerHTML = '<span class="text-danger font-semibold">CEP inválido. Deve conter 8 dígitos.</span>';
+          resultDiv.classList.remove('hidden');
+          return;
+        }
+
+        resultDiv.innerHTML = 'Calculando...';
+        resultDiv.classList.remove('hidden');
+
+        // Proxy CEP address check
+        fetch(`/api/cep/${cleanCEP}`)
+          .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+          })
+          .then(data => {
+            // Flat rate simulation: if product is coffee, standard delivery.
+            resultDiv.innerHTML = `
+              <div class="mt-3 p-3 bg-surface border border-border rounded-xl space-y-1">
+                <p class="font-bold text-primary uppercase">Opções de Entrega para: ${data.city} - ${data.state}</p>
+                <div class="flex justify-between items-center text-[10px]">
+                  <span>🚚 Entrega Normal (3-6 dias úteis):</span>
+                  <strong class="text-primary">R$ 15,00</strong>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-success">
+                  <span>✨ Frete Grátis nas compras acima de R$ 150,00</span>
+                </div>
+              </div>
+            `;
+          })
+          .catch(() => {
+            resultDiv.innerHTML = '<span class="text-danger font-semibold">Erro ao simular frete. Tente novamente.</span>';
+          });
+      });
+    }
+
+    // Review submit form
+    const reviewForm = document.getElementById('submit-review-form');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const feedback = document.getElementById('review-feedback');
+        if (!feedback) return;
+
+        const formData = new FormData(reviewForm);
+        const dataObj = {};
+        formData.forEach((value, key) => { dataObj[key] = value; });
+
+        feedback.innerHTML = 'Enviando...';
+        feedback.className = 'text-xs text-text-muted block';
+
+        fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataObj)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              feedback.innerHTML = data.error;
+              feedback.className = 'text-xs text-danger block';
+            } else if (data.errors) {
+              feedback.innerHTML = data.errors.map(err => err.msg).join('<br>');
+              feedback.className = 'text-xs text-danger block';
+            } else {
+              feedback.innerHTML = data.message;
+              feedback.className = 'text-xs text-success font-bold block';
+              reviewForm.reset();
+              setReviewRating(0);
+            }
+          })
+          .catch(() => {
+            feedback.innerHTML = 'Falha de conexão com o servidor.';
+            feedback.className = 'text-xs text-danger block';
+          });
+      });
+    }
+  });
+</script>

@@ -1,0 +1,173 @@
+<div id="cookie-banner" class="fixed bottom-6 left-6 right-6 md:left-8 md:max-w-md bg-white border border-border rounded-2xl shadow-xl z-50 p-6 hidden transform translate-y-10 opacity-0 transition-all duration-500 ease-out font-body">
+  <!-- Default view -->
+  <div id="cookie-main-view">
+    <div class="flex items-center space-x-3 mb-3">
+      <div class="p-2 bg-accent bg-opacity-10 text-accent rounded-xl">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+      </div>
+      <h3 class="text-md font-bold text-primary font-display">Sua Privacidade</h3>
+    </div>
+    <p class="text-xs text-text-muted leading-relaxed mb-4">
+      Utilizamos cookies para personalizar sua experiência, analisar tráfego e otimizar campanhas de marketing. Ao clicar, você escolhe suas preferências de consentimento de acordo com a LGPD.
+    </p>
+    <div class="flex flex-col space-y-2">
+      <button id="btn-accept-all" class="w-full py-2 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-lg shadow-sm transition-colors duration-200">
+        Aceitar Todos
+      </button>
+      <div class="flex space-x-2">
+        <button id="btn-accept-essential" class="w-1/2 py-2 bg-surface hover:bg-gray-100 text-primary border border-border text-xs font-bold rounded-lg transition-colors duration-200">
+          Apenas Essenciais
+        </button>
+        <button id="btn-configure-cookies" class="w-1/2 py-2 bg-white hover:bg-surface text-primary border border-border text-xs font-bold rounded-lg transition-colors duration-200">
+          Configurar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings view -->
+  <div id="cookie-settings-view" class="hidden">
+    <h3 class="text-sm font-bold text-primary font-display mb-3">Preferências de Cookies</h3>
+    <div class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
+      <div class="flex items-start justify-between">
+        <div>
+          <h4 class="text-xs font-bold text-primary">Necessários (Obrigatoriais)</h4>
+          <p class="text-[10px] text-text-muted">Cookies essenciais para o funcionamento básico da loja, login e carrinho.</p>
+        </div>
+        <input type="checkbox" checked disabled class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary cursor-not-allowed">
+      </div>
+      <div class="flex items-start justify-between border-t border-gray-100 pt-2">
+        <div>
+          <h4 class="text-xs font-bold text-primary">Estatísticas e Analytics</h4>
+          <p class="text-[10px] text-text-muted">Nos ajudam a entender como os visitantes interagem com o site de forma anônima.</p>
+        </div>
+        <input type="checkbox" id="cookie-opt-analytics" checked class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer">
+      </div>
+      <div class="flex items-start justify-between border-t border-gray-100 pt-2">
+        <div>
+          <h4 class="text-xs font-bold text-primary">Marketing e Pixel</h4>
+          <p class="text-[10px] text-text-muted">Permite criar anúncios personalizados nas redes sociais e rastrear vendas.</p>
+        </div>
+        <input type="checkbox" id="cookie-opt-marketing" checked class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer">
+      </div>
+    </div>
+    <div class="flex space-x-2">
+      <button id="btn-save-settings" class="w-1/2 py-2 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-lg shadow-sm transition-colors duration-200">
+        Salvar Preferências
+      </button>
+      <button id="btn-back-cookie" class="w-1/2 py-2 bg-surface hover:bg-gray-100 text-primary border border-border text-xs font-bold rounded-lg transition-colors duration-200">
+        Voltar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const banner = document.getElementById('cookie-banner');
+    if (!banner) return;
+
+    // Check if consent has already been given
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    };
+
+    const setCookie = (name, value, days) => {
+      const d = new Date();
+      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Strict;${location.protocol === 'https:' ? 'Secure;' : ''}`;
+    };
+
+    const consent = getCookie('lgpd_consent');
+    if (!consent) {
+      setTimeout(() => {
+        banner.classList.remove('hidden');
+        // Trigger transition layout reflow
+        setTimeout(() => {
+          banner.classList.remove('translate-y-10', 'opacity-0');
+        }, 50);
+      }, 1000);
+    } else {
+      // Consent already exists, execute tracking scripts if applicable
+      loadAllowedTracking(JSON.parse(consent));
+    }
+
+    // Navigation configuration
+    document.getElementById('btn-configure-cookies').addEventListener('click', () => {
+      document.getElementById('cookie-main-view').classList.add('hidden');
+      document.getElementById('cookie-settings-view').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-back-cookie').addEventListener('click', () => {
+      document.getElementById('cookie-settings-view').classList.add('hidden');
+      document.getElementById('cookie-main-view').classList.remove('hidden');
+    });
+
+    // Accept behaviors
+    const hideBanner = () => {
+      banner.classList.add('translate-y-10', 'opacity-0');
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 500);
+    };
+
+    document.getElementById('btn-accept-all').addEventListener('click', () => {
+      const val = { essential: true, analytics: true, marketing: true };
+      setCookie('lgpd_consent', JSON.stringify(val), 365);
+      loadAllowedTracking(val);
+      hideBanner();
+    });
+
+    document.getElementById('btn-accept-essential').addEventListener('click', () => {
+      const val = { essential: true, analytics: false, marketing: false };
+      setCookie('lgpd_consent', JSON.stringify(val), 365);
+      hideBanner();
+    });
+
+    document.getElementById('btn-save-settings').addEventListener('click', () => {
+      const analytics = document.getElementById('cookie-opt-analytics').checked;
+      const marketing = document.getElementById('cookie-opt-marketing').checked;
+      const val = { essential: true, analytics, marketing };
+      setCookie('lgpd_consent', JSON.stringify(val), 365);
+      loadAllowedTracking(val);
+      hideBanner();
+    });
+
+    // Function to dynamically load analytics tags based on user choices
+    function loadAllowedTracking(settings) {
+      if (settings.analytics) {
+        // Load Google Analytics 4 if measurement ID exists
+        <% if (gaId) { %>
+          const gaScript = document.createElement('script');
+          gaScript.async = true;
+          gaScript.src = "https://www.googletagmanager.com/gtag/js?id=<%= gaId %>";
+          document.head.appendChild(gaScript);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '<%= gaId %>');
+        <% } %>
+      }
+
+      if (settings.marketing) {
+        // Load Meta Pixel if Pixel ID exists
+        <% if (pixelId) { %>
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '<%= pixelId %>');
+          fbq('track', 'PageView');
+        <% } %>
+      }
+    }
+  })();
+</script>

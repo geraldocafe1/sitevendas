@@ -1,0 +1,148 @@
+<footer class="bg-primary text-white pt-12 pb-6 mt-auto font-body border-t border-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      
+      <!-- Brand & Story -->
+      <div class="space-y-4">
+        <a href="/" class="flex items-center space-x-2">
+          <svg class="w-8 h-8 text-accent fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H9v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+          <span class="text-lg font-extrabold text-white font-display tracking-tight"><%= storeName %></span>
+        </a>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          Cafés especiais colhidos e torrados com amor por baristas experientes. Levamos a experiência das melhores cafeterias brasileiras direto para a sua casa.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-sm font-bold font-display text-accent mb-4">Navegação</h4>
+        <ul class="space-y-2 text-xs text-gray-400">
+          <li><a href="/produtos" class="hover:text-white transition-colors">Ver Catálogo</a></li>
+          <li><a href="/blog" class="hover:text-white transition-colors">Blog Especiais</a></li>
+          <li><a href="/favoritos" class="hover:text-white transition-colors">Lista de Desejos</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal Links -->
+      <div>
+        <h4 class="text-sm font-bold font-display text-accent mb-4">Institucional</h4>
+        <ul class="space-y-2 text-xs text-gray-400">
+          <li><a href="/termos" class="hover:text-white transition-colors">Termos de Uso</a></li>
+          <li><a href="/privacidade" class="hover:text-white transition-colors">Política de Privacidade</a></li>
+          <li>
+            <button onclick="document.cookie='lgpd_consent=;Max-Age=0;path=/;'; location.reload();" class="hover:text-white transition-colors text-left focus:outline-none">
+              Preferências de Cookies
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <h4 class="text-sm font-bold font-display text-accent mb-4">Fale Conosco</h4>
+        <p class="text-xs text-gray-400 leading-relaxed mb-3">
+          Dúvidas sobre preparo ou torras? Entre em contato de segunda a sábado.
+        </p>
+        <p class="text-xs text-white font-bold mb-1">contato@graonobre.com.br</p>
+        <p class="text-xs text-gray-400">SAC: (11) 4002-8922</p>
+      </div>
+
+    </div>
+
+    <!-- Divider & Copyright -->
+    <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-gray-500">
+      <p>&copy; <%= new Date().getFullYear() %> <%= storeName %> Ltda. CNPJ 12.345.678/0001-90. Todos os direitos reservados.</p>
+      <p class="mt-2 md:mt-0">Desenvolvido com carinho • 100% Brasileiro</p>
+    </div>
+  </div>
+
+  <!-- WHATSAPP FLOATING BUTTON -->
+  <a href="https://wa.me/<%= whatsappNumber %>?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20os%20caf%C3%A9s%20especiais%20da%20Gr%C3%A3o%20Nobre." 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     class="fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-300"
+     aria-label="Fale conosco no WhatsApp">
+    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.012 2c-5.506 0-9.988 4.482-9.988 9.988 0 1.76.459 3.483 1.332 5.006L2 22l5.141-1.347a9.92 9.92 0 004.871 1.335h.005c5.506 0 9.988-4.482 9.988-9.988C22 6.482 17.518 2 12.012 2zm0 18.294h-.003c-1.579 0-3.13-.424-4.484-1.226l-.322-.191-3.337.874.89-3.253-.21-.334c-.881-1.401-1.347-3.023-1.347-4.697 0-4.636 3.771-8.407 8.408-8.407 2.247 0 4.359.876 5.948 2.466a8.34 8.34 0 012.463 5.948c0 4.637-3.772 8.408-8.408 8.408zm4.61-6.304c-.252-.127-1.493-.737-1.724-.821-.232-.085-.401-.127-.57.127-.168.252-.653.821-.8 1-.147.178-.295.203-.547.076-.252-.127-1.066-.393-2.03-1.254-.75-.669-1.257-1.495-1.404-1.748-.148-.252-.016-.389.11-.515.113-.113.253-.296.38-.444.127-.148.169-.253.253-.422.085-.17.042-.317-.021-.444-.064-.127-.57-1.373-.78-1.88-.205-.493-.41-.424-.57-.424h-.485c-.169 0-.443.064-.675.317-.232.253-.886.866-.886 2.114 0 1.247.907 2.452 1.034 2.622.127.169 1.785 2.726 4.324 3.82 2.539 1.094 2.539.73 3.003.687.464-.043 1.493-.61 1.704-1.203.211-.592.211-1.1.148-1.203-.064-.103-.232-.165-.484-.292z"/>
+    </svg>
+  </a>
+
+  <!-- RECENT SALES TOAST NOTIFICATION -->
+  <div id="recent-sale-toast" class="fixed bottom-6 left-6 z-40 bg-white border border-border rounded-xl shadow-2xl p-4 flex items-center space-x-3 max-w-xs transform translate-y-24 opacity-0 transition-all duration-500 hidden font-body">
+    <div class="w-10 h-10 rounded-lg bg-surface flex-shrink-0 overflow-hidden">
+      <img id="toast-product-image" src="/uploads/placeholder.jpg" class="w-full h-full object-cover" alt="Produto comprado">
+    </div>
+    <div class="flex-1">
+      <p class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Venda recente</p>
+      <p class="text-xs text-text font-bold leading-tight" id="toast-message">João de São Paulo comprou um produto!</p>
+      <p class="text-[9px] text-success font-semibold mt-0.5">há 3 minutos</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    // Recent Sales Toast configuration
+    const names = ['João', 'Maria', 'Pedro', 'Ana', 'Lucas', 'Carlos', 'Mariana', 'Beatriz', 'Juliana', 'Felipe', 'Mateus', 'Gabriel', 'Laura', 'Luiza', 'Camila', 'Gustavo', 'Rafael', 'Diego', 'Rodrigo', 'Thiago'];
+    const cities = ['São Paulo - SP', 'Rio de Janeiro - RJ', 'Belo Horizonte - MG', 'Curitiba - PR', 'Porto Alegre - RS', 'Campinas - SP', 'Santos - SP', 'Niterói - RJ', 'Vitória - ES', 'Florianópolis - SC', 'Salvador - BA', 'Recife - PE', 'Fortaleza - CE', 'Brasília - DF', 'Goiânia - GO', 'Uberlândia - MG', 'Joinville - SC', 'Ribeirão Preto - SP', 'Sorocaba - SP', 'São José dos Campos - SP'];
+    
+    // We fetch a list of products to simulate recent sales
+    let productsList = [];
+
+    // Fetch products on load
+    fetch('/api/products?limit=8')
+      .then(res => res.json())
+      .then(data => {
+        if (data.products && data.products.length > 0) {
+          productsList = data.products;
+          // Start the notification loop
+          scheduleNextToast();
+        }
+      })
+      .catch(err => console.log('Error fetching toast products:', err));
+
+    function scheduleNextToast() {
+      // Random interval between 90s and 180s (90000ms - 180000ms)
+      const interval = Math.floor(Math.random() * (180000 - 90000 + 1)) + 90000;
+      setTimeout(showToast, interval);
+    }
+
+    function showToast() {
+      if (productsList.length === 0) return;
+
+      const toast = document.getElementById('recent-sale-toast');
+      const img = document.getElementById('toast-product-image');
+      const msg = document.getElementById('toast-message');
+
+      if (!toast || !img || !msg) return;
+
+      // Select random item
+      const product = productsList[Math.floor(Math.random() * productsList.length)];
+      const name = names[Math.floor(Math.random() * names.length)];
+      const city = cities[Math.floor(Math.random() * cities.length)];
+
+      const isWebpObj = typeof product.images[0] === 'object';
+      img.src = isWebpObj ? product.images[0].webp : product.images[0];
+      img.alt = product.name;
+
+      msg.innerHTML = `<strong>${name}</strong> de <strong>${city}</strong> comprou <strong>${product.name}</strong>`;
+
+      // Show toast
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-24', 'opacity-0');
+      }, 50);
+
+      // Hide after 8 seconds
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          scheduleNextToast(); // Schedule next
+        }, 500);
+      }, 8000);
+    }
+  })();
+</script>

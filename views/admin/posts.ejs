@@ -1,0 +1,264 @@
+<div class="space-y-6 font-body">
+  
+  <div class="flex items-center justify-between">
+    <p class="text-xs text-text-muted">Escreva e publique artigos no blog da Grão Nobre para impulsionar o SEO.</p>
+    <button type="button" 
+            onclick="openAddPostModal()"
+            class="px-4 py-2 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors flex items-center space-x-1.5">
+      <span>+ Novo Artigo</span>
+    </button>
+  </div>
+
+  <!-- Articles Table list -->
+  <div class="bg-white border border-border rounded-2xl overflow-hidden shadow-xs">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-surface text-text-muted font-bold border-b border-border">
+            <th class="p-4 w-[45%]">Título do Post</th>
+            <th class="p-4 text-center">Data Publicação</th>
+            <th class="p-4 text-center">Status</th>
+            <th class="p-4 text-center w-28">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% if (posts && posts.length > 0) { %>
+            <% posts.forEach(post => { %>
+              <tr class="<%= !post.is_published ? 'bg-gray-50' : '' %>">
+                <td class="p-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-12 aspect-video rounded-lg overflow-hidden border border-border bg-surface flex-shrink-0">
+                      <img src="<%= post.cover_image || 'https://picsum.photos/100/50' %>" class="w-full h-full object-cover" alt="<%= post.title %>">
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-primary truncate max-w-[250px]"><%= post.title %></h4>
+                      <p class="text-[9px] text-text-muted mt-0.5">/blog/<%= post.slug %></p>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-4 text-center text-text-muted">
+                  <%= post.published_at ? new Date(post.published_at).toLocaleDateString('pt-BR') : 'Rascunho' %>
+                </td>
+                <td class="p-4 text-center">
+                  <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold <%= post.is_published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+                    <%= post.is_published ? 'Publicado' : 'Rascunho' %>
+                  </span>
+                </td>
+                <td class="p-4 text-center space-x-1">
+                  <!-- Edit button with data attributes -->
+                  <button type="button" 
+                          onclick="openEditPostModal(this)"
+                          data-id="<%= post.id %>"
+                          data-title="<%= post.title %>"
+                          data-content="<%= post.content %>"
+                          data-excerpt="<%= post.excerpt %>"
+                          data-meta_title="<%= post.meta_title %>"
+                          data-meta_description="<%= post.meta_description %>"
+                          data-is_published="<%= post.is_published %>"
+                          class="px-2 py-1 bg-surface border border-border text-[10px] font-bold rounded-lg hover:bg-gray-100 text-primary">
+                    Editar
+                  </button>
+                  <button type="button" 
+                          onclick="deletePost('<%= post.id %>')"
+                          class="px-2 py-1 bg-red-50 border border-red-200 text-[10px] font-bold rounded-lg hover:bg-red-100 text-danger">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="4" class="p-12 text-center text-text-muted">Nenhum artigo escrito.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT POST MODAL -->
+  <div id="post-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closePostModal()"></div>
+    <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-border">
+        <!-- Header -->
+        <div class="bg-primary text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="text-sm font-bold font-display uppercase tracking-wider" id="modal-title-text">Escrever Artigo</h3>
+          <button type="button" class="text-white hover:text-accent focus:outline-none" onclick="closePostModal()">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form id="post-form" class="p-6 space-y-4" enctype="multipart/form-data">
+          <!-- Hidden input for ID (editing only) -->
+          <input type="hidden" id="post_id" name="post_id">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          
+          <div class="space-y-4">
+            <div class="space-y-1">
+              <label for="form-title" class="text-xs font-bold text-primary uppercase">Título do Artigo *</label>
+              <input type="text" required id="form-title" name="title" class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label for="form-cover" class="text-xs font-bold text-primary uppercase">Imagem de Capa</label>
+                <input type="file" id="form-cover" name="cover" accept="image/*" class="w-full bg-surface border border-border rounded-xl px-3 py-1.5 text-xs cursor-pointer focus:outline-none">
+              </div>
+              <div class="space-y-1">
+                <label for="form-excerpt" class="text-xs font-bold text-primary uppercase">Resumo (Excerpt) *</label>
+                <input type="text" required id="form-excerpt" name="excerpt" placeholder="Breve resumo de 1 linha para o feed..." class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label for="form-content" class="text-xs font-bold text-primary uppercase">Conteúdo do Artigo (HTML permitido) *</label>
+              <textarea required id="form-content" name="content" rows="6" placeholder="Escreva seu artigo aqui..." class="w-full bg-surface border border-border rounded-xl px-3 py-2 text-xs focus:ring-1 focus:ring-primary focus:outline-none"></textarea>
+            </div>
+
+            <!-- Meta SEO Settings -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+              <div class="space-y-1">
+                <label for="form-meta-title" class="text-xs font-bold text-primary uppercase">Meta Title (SEO)</label>
+                <input type="text" id="form-meta-title" name="meta_title" class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              </div>
+              <div class="space-y-1">
+                <label for="form-meta-desc" class="text-xs font-bold text-primary uppercase">Meta Description (SEO)</label>
+                <input type="text" id="form-meta-desc" name="meta_description" class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <label class="flex items-center text-xs text-primary font-bold cursor-pointer">
+                <input type="checkbox" id="form-publish" name="is_published" value="true" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary mr-2 cursor-pointer">
+                Publicar Imediatamente
+              </label>
+            </div>
+          </div>
+
+          <!-- Alert feed -->
+          <div id="form-alert" class="text-xs hidden font-bold mt-2"></div>
+
+          <!-- Footer Actions -->
+          <div class="pt-4 border-t border-border flex flex-row-reverse space-x-2 space-x-reverse">
+            <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl shadow-md transition-colors duration-200">
+              Salvar Artigo
+            </button>
+            <button type="button" onclick="closePostModal()" class="px-5 py-2.5 bg-surface hover:bg-gray-100 text-primary border border-border text-xs font-bold rounded-xl transition-colors duration-200">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let editingId = null;
+
+  function openAddPostModal() {
+    editingId = null;
+    document.getElementById('modal-title-text').innerText = 'Escrever Artigo';
+    document.getElementById('post_id').value = '';
+    document.getElementById('post-form').reset();
+    document.getElementById('form-alert').className = 'text-xs hidden';
+
+    const el = document.getElementById('post-modal');
+    el.classList.remove('hidden');
+  }
+
+  function openEditPostModal(btn) {
+    document.getElementById('modal-title-text').innerText = 'Editar Artigo';
+    document.getElementById('post-form').reset();
+    document.getElementById('form-alert').className = 'text-xs hidden';
+
+    editingId = btn.getAttribute('data-id');
+    document.getElementById('post_id').value = editingId;
+
+    document.getElementById('form-title').value = btn.getAttribute('data-title');
+    document.getElementById('form-content').value = btn.getAttribute('data-content');
+    document.getElementById('form-excerpt').value = btn.getAttribute('data-excerpt');
+
+    document.getElementById('form-meta-title').value = btn.getAttribute('data-meta_title') || '';
+    document.getElementById('form-meta-desc').value = btn.getAttribute('data-meta_description') || '';
+
+    document.getElementById('form-publish').checked = btn.getAttribute('data-is_published') === 'true';
+
+    const el = document.getElementById('post-modal');
+    el.classList.remove('hidden');
+  }
+
+  function closePostModal() {
+    document.getElementById('post-modal').classList.add('hidden');
+  }
+
+  document.getElementById('post-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const alertDiv = document.getElementById('form-alert');
+    alertDiv.innerHTML = 'Salvando...';
+    alertDiv.className = 'text-xs text-text-muted block font-semibold';
+
+    const formData = new FormData(this);
+    formData.set('is_published', document.getElementById('form-publish').checked ? 'true' : 'false');
+
+    const method = editingId ? 'PUT' : 'POST';
+    const url = editingId ? `/admin/posts/${editingId}` : '/admin/posts';
+
+    fetch(url, {
+      method: method,
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alertDiv.innerHTML = data.error;
+          alertDiv.className = 'text-xs text-danger block';
+        } else if (data.errors) {
+          alertDiv.innerHTML = data.errors.map(err => err.msg).join('<br>');
+          alertDiv.className = 'text-xs text-danger block';
+        } else {
+          alertDiv.innerHTML = data.message;
+          alertDiv.className = 'text-xs text-success font-bold block';
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        }
+      })
+      .catch(() => {
+        alertDiv.innerHTML = 'Erro ao conectar ao servidor.';
+        alertDiv.className = 'text-xs text-danger block';
+      });
+  });
+
+  function deletePost(id) {
+    if (confirm('Deseja realmente excluir este artigo do blog permanentemente?')) {
+      fetch(`/admin/posts/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          _csrf: document.querySelector('input[name="_csrf"]').value
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            alert(data.message);
+            location.reload();
+          }
+        })
+        .catch(() => {
+          alert('Erro ao excluir artigo.');
+        });
+    }
+  }
+</script>

@@ -1,0 +1,414 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-body">
+  <!-- Breadcrumb -->
+  <%- include('../partials/breadcrumb', { 
+    breadcrumbs: [
+      { name: 'Checkout', url: '/checkout' }
+    ] 
+  }) %>
+
+  <h1 class="text-2xl sm:text-3xl font-extrabold text-primary font-display mb-8 mt-4">Finalizar Compra</h1>
+
+  <!-- Two column layout: Left Form steps, Right Order Summary sticky box -->
+  <div class="flex flex-col lg:flex-row gap-8">
+    
+    <!-- LEFT: Checkout Steps -->
+    <div class="flex-grow space-y-6">
+      <form id="checkout-form" class="space-y-6">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <!-- Hidden fields populated by cart -->
+        <input type="hidden" name="coupon_code" id="checkout-coupon-code" value="">
+
+        <!-- STEP 1: IDENTIFICAÇÃO -->
+        <div class="bg-white border border-border rounded-2xl p-6 space-y-4">
+          <div class="flex items-center space-x-3 pb-3 border-b border-gray-100">
+            <span class="w-6 h-6 rounded-full bg-primary text-white font-extrabold flex items-center justify-center text-xs">1</span>
+            <h2 class="text-sm font-bold text-primary font-display uppercase tracking-wider">Identificação</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label for="shipping_name" class="text-xs font-bold text-primary">Nome Completo *</label>
+              <input type="text" 
+                     name="shipping_name" 
+                     id="shipping_name" 
+                     required 
+                     value="<%= typeof user !== 'undefined' && user ? user.name : '' %>"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+            <div class="space-y-1">
+              <label for="shipping_email" class="text-xs font-bold text-primary">E-mail *</label>
+              <input type="email" 
+                     name="shipping_email" 
+                     id="shipping_email" 
+                     required 
+                     value="<%= typeof user !== 'undefined' && user ? user.email : '' %>"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+            <div class="space-y-1 sm:col-span-2">
+              <label for="shipping_phone" class="text-xs font-bold text-primary">Telefone *</label>
+              <input type="tel" 
+                     name="shipping_phone" 
+                     id="shipping_phone" 
+                     required 
+                     value="<%= typeof user !== 'undefined' && user ? user.phone : '' %>"
+                     placeholder="(11) 99999-9999"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: ENTREGA -->
+        <div class="bg-white border border-border rounded-2xl p-6 space-y-4">
+          <div class="flex items-center space-x-3 pb-3 border-b border-gray-100">
+            <span class="w-6 h-6 rounded-full bg-primary text-white font-extrabold flex items-center justify-center text-xs">2</span>
+            <h2 class="text-sm font-bold text-primary font-display uppercase tracking-wider">Endereço de Entrega</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-6 gap-4">
+            <!-- CEP -->
+            <div class="space-y-1 sm:col-span-2">
+              <label for="shipping_zip" class="text-xs font-bold text-primary">CEP *</label>
+              <div class="relative">
+                <input type="text" 
+                       name="shipping_zip" 
+                       id="shipping_zip" 
+                       required 
+                       placeholder="00000-000"
+                       maxlength="9"
+                       class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+                <span id="cep-loading" class="absolute right-3 top-3 text-[10px] text-text-muted hidden">Buscando...</span>
+              </div>
+            </div>
+
+            <!-- Address (Logradouro) -->
+            <div class="space-y-1 sm:col-span-4">
+              <label for="shipping_address" class="text-xs font-bold text-primary">Endereço *</label>
+              <input type="text" 
+                     name="shipping_address" 
+                     id="shipping_address" 
+                     required 
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+
+            <!-- Number -->
+            <div class="space-y-1 sm:col-span-2">
+              <label for="shipping_number" class="text-xs font-bold text-primary">Número *</label>
+              <input type="text" 
+                     name="shipping_number" 
+                     id="shipping_number" 
+                     required 
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+
+            <!-- Complement -->
+            <div class="space-y-1 sm:col-span-4">
+              <label for="shipping_complement" class="text-xs font-bold text-primary">Complemento</label>
+              <input type="text" 
+                     name="shipping_complement" 
+                     id="shipping_complement" 
+                     placeholder="Apto, bloco, sala..."
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+
+            <!-- City -->
+            <div class="space-y-1 sm:col-span-3">
+              <label for="shipping_city" class="text-xs font-bold text-primary">Cidade *</label>
+              <input type="text" 
+                     name="shipping_city" 
+                     id="shipping_city" 
+                     required 
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+
+            <!-- State -->
+            <div class="space-y-1 sm:col-span-3">
+              <label for="shipping_state" class="text-xs font-bold text-primary">Estado *</label>
+              <input type="text" 
+                     name="shipping_state" 
+                     id="shipping_state" 
+                     required 
+                     placeholder="UF"
+                     maxlength="2"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: PAGAMENTO -->
+        <div class="bg-white border border-border rounded-2xl p-6 space-y-4">
+          <div class="flex items-center space-x-3 pb-3 border-b border-gray-100">
+            <span class="w-6 h-6 rounded-full bg-primary text-white font-extrabold flex items-center justify-center text-xs">3</span>
+            <h2 class="text-sm font-bold text-primary font-display uppercase tracking-wider">Forma de Pagamento</h2>
+          </div>
+
+          <!-- Payment Methods Selector -->
+          <div class="grid grid-cols-3 gap-3">
+            <label class="border border-primary bg-primary bg-opacity-5 rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-primary transition-all duration-200" id="label-pay-card">
+              <input type="radio" name="payment_method" value="credit_card" checked class="hidden" onchange="togglePaymentFields('card')">
+              <span class="text-lg">💳</span>
+              <span class="text-[10px] font-bold mt-1 uppercase">Cartão</span>
+            </label>
+            <label class="border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-text-muted hover:border-primary transition-all duration-200" id="label-pay-pix">
+              <input type="radio" name="payment_method" value="pix" class="hidden" onchange="togglePaymentFields('pix')">
+              <span class="text-lg">⚡</span>
+              <span class="text-[10px] font-bold mt-1 uppercase">PIX</span>
+            </label>
+            <label class="border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-text-muted hover:border-primary transition-all duration-200" id="label-pay-boleto">
+              <input type="radio" name="payment_method" value="boleto" class="hidden" onchange="togglePaymentFields('boleto')">
+              <span class="text-lg">📄</span>
+              <span class="text-[10px] font-bold mt-1 uppercase">Boleto</span>
+            </label>
+          </div>
+
+          <!-- Card Form Container -->
+          <div id="payment-fields-card" class="space-y-4 pt-2">
+            <div class="space-y-1">
+              <label for="card_number" class="text-xs font-bold text-primary">Número do Cartão *</label>
+              <input type="text" 
+                     id="card_number" 
+                     name="card_number" 
+                     placeholder="0000 0000 0000 0000"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              <span id="card-validation-warning" class="text-[10px] text-danger hidden">Número de cartão inválido (Falha Luhn).</span>
+            </div>
+            <div class="space-y-1">
+              <label for="card_name" class="text-xs font-bold text-primary">Nome impresso no Cartão *</label>
+              <input type="text" 
+                     id="card_name" 
+                     name="card_name" 
+                     placeholder="NOME COMO NO CARTÃO"
+                     class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none uppercase">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label for="card_expiry" class="text-xs font-bold text-primary">Vencimento (MM/AA) *</label>
+                <input type="text" 
+                       id="card_expiry" 
+                       name="card_expiry" 
+                       placeholder="MM/AA"
+                       maxlength="5"
+                       class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              </div>
+              <div class="space-y-1">
+                <label for="card_cvv" class="text-xs font-bold text-primary">CVV *</label>
+                <input type="text" 
+                       id="card_cvv" 
+                       name="card_cvv" 
+                       placeholder="123"
+                       maxlength="4"
+                       class="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+              </div>
+            </div>
+          </div>
+
+          <!-- Pix Message Container -->
+          <div id="payment-fields-pix" class="hidden p-4 border border-dashed border-gray-200 bg-surface rounded-xl space-y-2 text-center pt-2">
+            <span class="text-xl">📱</span>
+            <h4 class="text-xs font-bold text-primary">Pagamento instantâneo via PIX</h4>
+            <p class="text-[10px] text-text-muted max-w-xs mx-auto leading-relaxed">
+              O QR Code e a chave copia-e-cola serão exibidos na tela de confirmação após você clicar no botão finalizar. A confirmação é instantânea!
+            </p>
+          </div>
+
+          <!-- Boleto Message Container -->
+          <div id="payment-fields-boleto" class="hidden p-4 border border-dashed border-gray-200 bg-surface rounded-xl space-y-2 text-center pt-2">
+            <span class="text-xl">📝</span>
+            <h4 class="text-xs font-bold text-primary">Boleto Bancário</h4>
+            <p class="text-[10px] text-text-muted max-w-xs mx-auto leading-relaxed">
+              O boleto estará disponível para impressão e cópia do código de barras após a conclusão do pedido. A confirmação ocorre em até 24h úteis.
+            </p>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- RIGHT: Sticky Order Summary & Submit -->
+    <div class="w-full lg:w-96 flex-shrink-0 bg-white border border-border rounded-2xl p-6 h-fit space-y-6">
+      <div class="flex items-center space-x-2 pb-3 border-b border-gray-100">
+        <span class="w-6 h-6 rounded-full bg-primary text-white font-extrabold flex items-center justify-center text-xs">4</span>
+        <h2 class="text-sm font-bold text-primary font-display uppercase tracking-wider">Resumo do Pedido</h2>
+      </div>
+
+      <!-- Items Checklist -->
+      <div class="divide-y divide-gray-100 max-h-56 overflow-y-auto pr-1" id="checkout-items-list">
+        <!-- Dyn. Populated by cart.js -->
+        <p class="text-xs text-text-muted py-4">Carregando itens...</p>
+      </div>
+
+      <!-- Summary calculations -->
+      <div class="space-y-2 border-t border-border pt-4 text-xs">
+        <div class="flex justify-between items-center text-text-muted">
+          <span>Subtotal:</span>
+          <strong class="text-primary" id="checkout-subtotal">R$ 0,00</strong>
+        </div>
+        <div class="flex justify-between items-center text-danger hidden" id="checkout-discount-row">
+          <span>Desconto (<span id="checkout-coupon-label">---</span>):</span>
+          <strong class="text-danger" id="checkout-discount">- R$ 0,00</strong>
+        </div>
+        <div class="flex justify-between items-center text-text-muted">
+          <span>Frete:</span>
+          <strong class="text-primary" id="checkout-shipping">R$ 0,00</strong>
+        </div>
+        <div class="flex justify-between items-center text-sm font-extrabold text-primary border-t border-gray-100 pt-3">
+          <span>Total Geral:</span>
+          <span class="text-base font-black text-accent" id="checkout-total">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Submit button & Alert feedbacks -->
+      <div class="space-y-3">
+        <div id="checkout-feedback" class="text-xs text-danger hidden font-bold"></div>
+        <button type="button" 
+                id="btn-submit-order"
+                class="w-full py-4 bg-primary hover:bg-primary-light text-white text-center text-xs font-bold rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2">
+          <span>Finalizar Compra</span>
+        </button>
+        <p class="text-[10px] text-text-muted text-center leading-relaxed">
+          Ao finalizar, você concorda com nossos <a href="/termos" class="underline">Termos de Uso</a> e <a href="/privacidade" class="underline">Política de Privacidade</a>.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Payment dynamic tab switcher
+  function togglePaymentFields(type) {
+    const cardEl = document.getElementById('payment-fields-card');
+    const pixEl = document.getElementById('payment-fields-pix');
+    const boletoEl = document.getElementById('payment-fields-boleto');
+
+    const cardLabel = document.getElementById('label-pay-card');
+    const pixLabel = document.getElementById('label-pay-pix');
+    const boletoLabel = document.getElementById('label-pay-boleto');
+
+    // Reset styles
+    [cardLabel, pixLabel, boletoLabel].forEach(label => {
+      label.className = 'border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-text-muted hover:border-primary transition-all duration-200';
+    });
+
+    [cardEl, pixEl, boletoEl].forEach(el => el.classList.add('hidden'));
+
+    if (type === 'card') {
+      cardEl.classList.remove('hidden');
+      cardLabel.className = 'border border-primary bg-primary bg-opacity-5 rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-primary transition-all duration-200';
+    } else if (type === 'pix') {
+      pixEl.classList.remove('hidden');
+      pixLabel.className = 'border border-primary bg-primary bg-opacity-5 rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-primary transition-all duration-200';
+    } else if (type === 'boleto') {
+      boletoEl.classList.remove('hidden');
+      boletoLabel.className = 'border border-primary bg-primary bg-opacity-5 rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer text-primary transition-all duration-200';
+    }
+  }
+
+  // Credit Card Luhn formula validator
+  function checkLuhn(cardNumber) {
+    const cleanNumber = cardNumber.replace(/\D/g, '');
+    if (cleanNumber.length < 13 || cleanNumber.length > 19) return false;
+
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = cleanNumber.length - 1; i >= 0; i--) {
+      let digit = parseInt(cleanNumber.charAt(i), 10);
+
+      if (shouldDouble) {
+        if ((digit *= 2) > 9) digit -= 9;
+      }
+
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+
+    return (sum % 10) === 0;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Input Masks
+    const zipInput = document.getElementById('shipping_zip');
+    const phoneInput = document.getElementById('shipping_phone');
+    const cardInput = document.getElementById('card_number');
+    const expiryInput = document.getElementById('card_expiry');
+
+    if (zipInput) {
+      zipInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 5) {
+          value = value.slice(0, 5) + '-' + value.slice(5, 8);
+        }
+        e.target.value = value;
+
+        // Auto ViaCEP lookup when zip is complete
+        const cleanCEP = value.replace('-', '');
+        if (cleanCEP.length === 8) {
+          const loadingSpan = document.getElementById('cep-loading');
+          loadingSpan.classList.remove('hidden');
+
+          fetch(`/api/cep/${cleanCEP}`)
+            .then(res => {
+              if (!res.ok) throw new Error();
+              return res.json();
+            })
+            .then(data => {
+              document.getElementById('shipping_address').value = data.address || '';
+              document.getElementById('shipping_city').value = data.city || '';
+              document.getElementById('shipping_state').value = data.state || '';
+              document.getElementById('shipping_number').focus();
+            })
+            .catch(() => {
+              console.log('CEP lookup failed.');
+            })
+            .finally(() => {
+              loadingSpan.classList.add('hidden');
+            });
+        }
+      });
+    }
+
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2,7)}-${value.slice(7,11)}`;
+        } else if (value.length > 5) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2,6)}-${value.slice(6,10)}`;
+        } else if (value.length > 2) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2)}`;
+        } else if (value.length > 0) {
+          e.target.value = `(${value}`;
+        }
+      });
+    }
+
+    if (cardInput) {
+      cardInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        let formatted = value.match(/.{1,4}/g);
+        e.target.value = formatted ? formatted.join(' ') : '';
+        
+        // Luhn feedback
+        const warning = document.getElementById('card-validation-warning');
+        if (value.length >= 16) {
+          if (!checkLuhn(value)) {
+            warning.classList.remove('hidden');
+          } else {
+            warning.classList.add('hidden');
+          }
+        } else {
+          warning.classList.add('hidden');
+        }
+      });
+    }
+
+    if (expiryInput) {
+      expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+          e.target.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        } else {
+          e.target.value = value;
+        }
+      });
+    }
+  });
+</script>

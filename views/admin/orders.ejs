@@ -1,0 +1,134 @@
+<div class="space-y-6 font-body">
+  
+  <!-- Toolbar filter -->
+  <div class="bg-white border border-border rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs text-xs">
+    <div class="flex items-center space-x-2">
+      <span class="text-text-muted">Filtrar por Status:</span>
+      <div class="flex space-x-1.5">
+        <a href="/admin/pedidos" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === '' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Todos</a>
+        <a href="/admin/pedidos?status=pending" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === 'pending' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Pendentes</a>
+        <a href="/admin/pedidos?status=paid" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === 'paid' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Pagos</a>
+        <a href="/admin/pedidos?status=shipped" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === 'shipped' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Enviados</a>
+        <a href="/admin/pedidos?status=delivered" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === 'delivered' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Entregues</a>
+        <a href="/admin/pedidos?status=cancelled" class="px-3 py-1.5 rounded-lg border font-bold <%= activeStatus === 'cancelled' ? 'bg-primary text-white border-primary' : 'bg-surface text-text border-border' %>">Cancelados</a>
+      </div>
+    </div>
+    <p class="text-text-muted text-[10px]">
+      Encontrados <span class="font-bold text-primary"><%= orders.length %></span> pedidos.
+    </p>
+  </div>
+
+  <!-- Orders Table list -->
+  <div class="bg-white border border-border rounded-2xl overflow-hidden shadow-xs">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-surface text-text-muted font-bold border-b border-border">
+            <th class="p-4">Pedido ID</th>
+            <th class="p-4">Cliente</th>
+            <th class="p-4 text-center">Data</th>
+            <th class="p-4 text-right">Total</th>
+            <th class="p-4 text-center">Pagamento</th>
+            <th class="p-4 text-center">Status</th>
+            <th class="p-4 text-center w-40">Alterar Status</th>
+            <th class="p-4 text-center w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% if (orders && orders.length > 0) { %>
+            <% orders.forEach(ord => { %>
+              <tr>
+                <td class="p-4 font-mono text-[10px]">#<%= ord.id.slice(0, 8) %></td>
+                <td class="p-4">
+                  <div class="font-bold text-primary"><%= ord.shipping_name %></div>
+                  <div class="text-[10px] text-text-muted mt-0.5"><%= ord.shipping_email %></div>
+                </td>
+                <td class="p-4 text-center text-text-muted">
+                  <%= new Date(ord.created_at).toLocaleDateString('pt-BR') %>
+                </td>
+                <td class="p-4 text-right font-extrabold text-primary">
+                  R$ <%= parseFloat(ord.total).toFixed(2).replace('.', ',') %>
+                </td>
+                <td class="p-4 text-center">
+                  <span class="text-[10px] font-bold uppercase"><%= ord.payment_method %></span>
+                </td>
+                <td class="p-4 text-center" id="status-badge-<%= ord.id %>">
+                  <% 
+                    let statusClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                    if (ord.status === 'paid') statusClass = 'bg-green-100 text-green-700 border-green-200';
+                    if (ord.status === 'shipped') statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+                    if (ord.status === 'delivered') statusClass = 'bg-teal-100 text-teal-700 border-teal-200';
+                    if (ord.status === 'cancelled') statusClass = 'bg-red-100 text-red-700 border-red-200';
+                  %>
+                  <span class="px-2.5 py-0.5 rounded-full text-[9px] uppercase font-bold border <%= statusClass %>">
+                    <%= ord.status %>
+                  </span>
+                </td>
+                <td class="p-4 text-center">
+                  <!-- Select field to dynamically change status -->
+                  <select data-order-id="<%= ord.id %>" 
+                          class="order-status-select w-full bg-surface border border-border rounded-xl px-2 py-1 text-[10px] focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer">
+                    <option value="pending" <%= ord.status === 'pending' ? 'selected' : '' %>>Pendente</option>
+                    <option value="paid" <%= ord.status === 'paid' ? 'selected' : '' %>>Pago</option>
+                    <option value="shipped" <%= ord.status === 'shipped' ? 'selected' : '' %>>Enviado</option>
+                    <option value="delivered" <%= ord.status === 'delivered' ? 'selected' : '' %>>Entregue</option>
+                    <option value="cancelled" <%= ord.status === 'cancelled' ? 'selected' : '' %>>Cancelado</option>
+                  </select>
+                </td>
+                <td class="p-4 text-center">
+                  <a href="/admin/pedidos/<%= ord.id %>" class="px-3 py-1 bg-surface border border-border text-[10px] font-bold rounded-lg hover:bg-gray-100">Detalhar</a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="p-12 text-center text-text-muted">Nenhum pedido encontrado.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function updateOrderStatus(id, newStatus) {
+    fetch(`/admin/pedidos/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: newStatus, _csrf: '<%= csrfToken %>' })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Update status badge UI dynamically
+          const tdBadge = document.getElementById(`status-badge-${id}`);
+          let statusClass = 'bg-gray-100 text-gray-700 border-gray-200';
+          if (newStatus === 'paid') statusClass = 'bg-green-100 text-green-700 border-green-200';
+          if (newStatus === 'shipped') statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+          if (newStatus === 'delivered') statusClass = 'bg-teal-100 text-teal-700 border-teal-200';
+          if (newStatus === 'cancelled') statusClass = 'bg-red-100 text-red-700 border-red-200';
+
+          tdBadge.innerHTML = `<span class="px-2.5 py-0.5 rounded-full text-[9px] uppercase font-bold border ${statusClass}">${newStatus}</span>`;
+        }
+      })
+      .catch(() => {
+        alert('Erro ao atualizar status do pedido.');
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.order-status-select').forEach(select => {
+      select.addEventListener('change', (event) => {
+        const id = select.getAttribute('data-order-id');
+        const newStatus = event.target.value;
+        updateOrderStatus(id, newStatus);
+      });
+    });
+  });
+</script>

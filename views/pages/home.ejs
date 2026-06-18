@@ -1,0 +1,321 @@
+<!-- HERO BANNER -->
+<section class="relative bg-primary overflow-hidden py-20 lg:py-32 font-body">
+  <div class="absolute inset-0 bg-radial-gradient opacity-30 pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col lg:flex-row items-center gap-12">
+    <!-- Hero Text -->
+    <div class="w-full lg:w-1/2 text-left space-y-6">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-accent bg-opacity-10 text-accent uppercase tracking-wider">
+        Sabor de Origem Nobre
+      </span>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display text-white leading-tight tracking-tight">
+        O melhor café especial colhido e torrado para você
+      </h1>
+      <p class="text-sm sm:text-base text-gray-300 max-w-lg leading-relaxed">
+        Descubra notas sensoriais inigualáveis de grãos 100% arábica cultivados de forma sustentável pelas famílias produtoras mais tradicionais do Brasil.
+      </p>
+      <div class="flex flex-wrap gap-4 pt-2">
+        <a href="/produtos" class="px-8 py-3.5 bg-accent hover:bg-yellow-600 text-primary font-bold text-xs rounded-xl shadow-lg transition-colors duration-200">
+          Comprar Cafés
+        </a>
+        <a href="/blog" class="px-8 py-3.5 bg-transparent hover:bg-white hover:bg-opacity-5 text-white border border-gray-600 hover:border-white font-bold text-xs rounded-xl transition-all duration-200">
+          Nosso Blog
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero Image Stack (Premium look) -->
+    <div class="w-full lg:w-1/2 flex justify-center relative">
+      <div class="relative w-80 sm:w-96 aspect-square rounded-3xl overflow-hidden shadow-2xl border border-gray-800">
+        <img src="/images/hero_coffee.png" alt="Preparo de café especial" class="w-full h-full object-cover">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES SECTOR -->
+<section class="py-16 bg-white font-body">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-primary font-display">Navegue por Categorias</h2>
+      <p class="text-xs sm:text-sm text-text-muted mt-2">Escolha o formato ideal para saborear o seu Grão Nobre.</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+      <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+        <% categories.forEach(cat => { %>
+          <a href="/produtos?category=<%= cat.slug %>" class="group flex flex-col items-center text-center p-4 rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all duration-300">
+            <div class="w-20 h-20 rounded-full overflow-hidden bg-surface mb-4 border border-gray-100 group-hover:scale-110 transition-transform">
+              <img src="<%= cat.image_url || 'https://picsum.photos/150/150' %>" alt="<%= cat.name %>" class="w-full h-full object-cover">
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-primary group-hover:text-primary-light transition-colors"><%= cat.name %></h3>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <p class="text-xs text-text-muted col-span-full text-center">Nenhuma categoria cadastrada.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-16 bg-surface font-body">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-12 gap-4">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-primary font-display">Nossos Destaques</h2>
+        <p class="text-xs text-text-muted mt-2">Os grãos e microlotes mais desejados pelos amantes do café.</p>
+      </div>
+      <a href="/produtos" class="text-xs font-bold text-primary hover:text-primary-light flex items-center space-x-1.5 border-b border-primary hover:border-primary-light pb-0.5">
+        <span>Ver catálogo completo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% if (typeof featuredProducts !== 'undefined' && featuredProducts.length > 0) { %>
+        <% featuredProducts.forEach(prod => { %>
+          <div>
+            <%- include('../partials/product-card', { product: prod }) %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="text-xs text-text-muted col-span-full text-center">Nenhum produto em destaque.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- URGENCY PROMO TIMER BANNER (CRO) -->
+<section class="py-12 bg-primary text-white font-body relative overflow-hidden border-y border-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+    <div class="space-y-3 text-center lg:text-left">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-danger text-white uppercase tracking-wider">
+        Oferta Relâmpago
+      </span>
+      <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold font-display">10% de Desconto em todo o site!</h2>
+      <p class="text-xs text-gray-400 max-w-md">Aplique o cupom <strong class="text-accent text-sm">BEMVINDO10</strong> na finalização da compra. Aproveite!</p>
+    </div>
+
+    <!-- Countdown Timer -->
+    <div class="flex flex-col items-center space-y-2">
+      <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">A oferta termina em:</p>
+      <!-- timer component using data-countdown attribute -->
+      <div class="flex items-center space-x-2 text-primary font-bold font-display" data-countdown="24h">
+        <div class="flex flex-col items-center bg-white px-3 py-2 rounded-xl min-w-14">
+          <span id="countdown-hours" class="text-lg">00</span>
+          <span class="text-[8px] text-text-muted uppercase font-bold">Horas</span>
+        </div>
+        <span class="text-white text-lg font-bold">:</span>
+        <div class="flex flex-col items-center bg-white px-3 py-2 rounded-xl min-w-14">
+          <span id="countdown-minutes" class="text-lg">00</span>
+          <span class="text-[8px] text-text-muted uppercase font-bold">Minutos</span>
+        </div>
+        <span class="text-white text-lg font-bold">:</span>
+        <div class="flex flex-col items-center bg-white px-3 py-2 rounded-xl min-w-14">
+          <span id="countdown-seconds" class="text-lg">00</span>
+          <span class="text-[8px] text-text-muted uppercase font-bold">Segundos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS SECTION -->
+<section class="py-16 bg-white font-body">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-primary font-display">Quem compra, aprova!</h2>
+      <p class="text-xs sm:text-sm text-text-muted mt-2">Histórias reais de quem ama café nobre e mudou sua rotina diária.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Card 1 -->
+      <div class="bg-surface p-6 rounded-2xl border border-border flex flex-col justify-between">
+        <div class="space-y-4">
+          <%- include('../partials/review-stars', { rating: 5 }) %>
+          <p class="text-xs text-text leading-relaxed">
+            "A melhor experiência de compra online! O café Grão de Ouro chegou super rápido e a torra é incrivelmente fresca. Minhas manhãs ganharam outro sabor."
+          </p>
+        </div>
+        <div class="flex items-center space-x-3 mt-6 pt-4 border-t border-gray-200">
+          <div class="w-8 h-8 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-xs">RM</div>
+          <div>
+            <h4 class="text-xs font-bold text-primary">Rodrigo M.</h4>
+            <p class="text-[10px] text-text-muted">Sommelier - São Paulo/SP</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-surface p-6 rounded-2xl border border-border flex flex-col justify-between">
+        <div class="space-y-4">
+          <%- include('../partials/review-stars', { rating: 5 }) %>
+          <p class="text-xs text-text leading-relaxed">
+            "Eu adoro grãos moídos na hora e os microlotes deles são sensacionais. O aroma toma conta de toda a casa! Recomendo muito o café Mogiana Paulista."
+          </p>
+        </div>
+        <div class="flex items-center space-x-3 mt-6 pt-4 border-t border-gray-200">
+          <div class="w-8 h-8 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-xs">AS</div>
+          <div>
+            <h4 class="text-xs font-bold text-primary">Amanda S.</h4>
+            <p class="text-[10px] text-text-muted">Engenheira - Curitiba/PR</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-surface p-6 rounded-2xl border border-border flex flex-col justify-between">
+        <div class="space-y-4">
+          <%- include('../partials/review-stars', { rating: 5 }) %>
+          <p class="text-xs text-text leading-relaxed">
+            "O kit barista é maravilhoso. Comprei para dar de presente e meu marido amou. Os acessórios são de excelente qualidade e o atendimento foi nota 10."
+          </p>
+        </div>
+        <div class="flex items-center space-x-3 mt-6 pt-4 border-t border-gray-200">
+          <div class="w-8 h-8 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-xs">FF</div>
+          <div>
+            <h4 class="text-xs font-bold text-primary">Fernanda F.</h4>
+            <p class="text-[10px] text-text-muted">Designer - Rio de Janeiro/RJ</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT BLOG ARTICLES -->
+<section class="py-16 bg-surface font-body border-t border-border">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-primary font-display">Aprenda com Especialistas</h2>
+      <p class="text-xs sm:text-sm text-text-muted mt-2">Dicas de extração, curiosidades, receitas e segredos dos baristas.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <% if (typeof latestPosts !== 'undefined' && latestPosts.length > 0) { %>
+        <% latestPosts.forEach(post => { %>
+          <article class="bg-white rounded-2xl border border-border overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
+            <a href="/blog/<%= post.slug %>" class="block aspect-video w-full overflow-hidden">
+              <img src="<%= post.cover_image || 'https://picsum.photos/400/225' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </a>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] text-accent font-bold uppercase tracking-wider">
+                  <%= new Date(post.published_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) %>
+                </span>
+                <h3 class="text-sm font-bold text-primary mt-2 mb-3 line-clamp-2 hover:text-primary-light">
+                  <a href="/blog/<%= post.slug %>"><%= post.title %></a>
+                </h3>
+                <p class="text-xs text-text-muted line-clamp-3 leading-relaxed mb-4">
+                  <%= post.excerpt %>
+                </p>
+              </div>
+              <a href="/blog/<%= post.slug %>" class="text-xs font-bold text-primary hover:text-primary-light flex items-center space-x-1 border-b border-primary hover:border-primary-light pb-0.5 self-start">
+                <span>Ler Artigo</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <p class="text-xs text-text-muted col-span-full text-center">Nenhum artigo publicado no blog.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- EXIT INTENT POPUP (CRO CAPTURE, captures email for coupon) -->
+<div id="exit-intent-popup" class="fixed inset-0 z-50 items-center justify-center p-4 bg-gray-900 bg-opacity-80 hidden transition-opacity duration-300 opacity-0 font-body">
+  <div class="bg-white rounded-2xl border border-border shadow-2xl p-8 max-w-md w-full relative">
+    <button type="button" id="close-exit-intent-btn" class="absolute top-4 right-4 text-text-muted hover:text-primary">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="text-center space-y-4">
+      <div class="inline-flex p-3 bg-accent bg-opacity-10 text-accent rounded-full text-2xl mx-auto">☕</div>
+      <h3 class="text-lg font-bold text-primary font-display">Não vá embora de xícara vazia!</h3>
+      <p class="text-xs text-text-muted leading-relaxed">
+        Cadastre-se na nossa newsletter agora e ganhe um cupom de <strong>10% de desconto</strong> para sua primeira compra!
+      </p>
+      
+      <form id="exit-intent-form" class="space-y-3 pt-2">
+        <input type="email" required placeholder="Seu melhor e-mail" class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none">
+        <button type="submit" class="w-full py-3 bg-accent hover:bg-yellow-600 text-primary font-bold text-xs rounded-xl shadow-lg transition-colors">
+          Quero meus 10% OFF
+        </button>
+      </form>
+      
+      <!-- coupon reward wrapper -->
+      <div id="exit-intent-success" class="hidden p-4 border border-green-200 bg-green-50 text-green-800 rounded-xl space-y-2">
+        <p class="text-xs font-bold">Parabéns! Use o cupom abaixo:</p>
+        <span class="inline-block px-4 py-2 border-2 border-dashed border-green-400 font-extrabold font-display bg-white text-md tracking-wider">
+          BEMVINDO10
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Exit Intent Popup scripts
+  function closeExitIntentPopup() {
+    const popup = document.getElementById('exit-intent-popup');
+    if (popup) {
+      popup.classList.add('opacity-0');
+      setTimeout(() => {
+        popup.classList.add('hidden');
+        popup.classList.remove('flex');
+      }, 300);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-exit-intent-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeExitIntentPopup);
+    }
+
+    const popup = document.getElementById('exit-intent-popup');
+    if (popup) {
+      popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+          closeExitIntentPopup();
+        }
+      });
+    }
+
+    let triggered = sessionStorage.getItem('exit_intent_triggered');
+    if (!triggered) {
+      document.addEventListener('mouseout', function(e) {
+        // Trigger when mouse moves out the top of viewport (exit intent)
+        if (e.clientY < 20 && !triggered) {
+          triggered = true;
+          sessionStorage.setItem('exit_intent_triggered', 'true');
+          
+          if (popup) {
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+            setTimeout(() => {
+              popup.classList.remove('opacity-0');
+            }, 50);
+          }
+        }
+      });
+    }
+
+    // Form logic
+    const form = document.getElementById('exit-intent-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Mimic API subscription
+        form.classList.add('hidden');
+        const successDiv = document.getElementById('exit-intent-success');
+        if (successDiv) {
+          successDiv.classList.remove('hidden');
+        }
+      });
+    }
+  });
+</script>

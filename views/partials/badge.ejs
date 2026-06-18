@@ -1,0 +1,22 @@
+<%
+  let badgeClass = 'bg-primary text-white';
+  let badgeText = typeof text !== 'undefined' ? text : '';
+
+  if (typeof variation !== 'undefined') {
+    if (variation === 'sale') {
+      badgeClass = 'bg-danger text-white';
+      badgeText = badgeText || 'OFERTA';
+    } else if (variation === 'new') {
+      badgeClass = 'bg-success text-white';
+      badgeText = badgeText || 'NOVIDADE';
+    } else if (variation === 'hot') {
+      badgeClass = 'bg-accent text-primary font-bold';
+      badgeText = badgeText || 'MAIS VENDIDO';
+    }
+  }
+%>
+<% if (badgeText) { %>
+  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider <%= badgeClass %> shadow-sm">
+    <%= badgeText %>
+  </span>
+<% } %>

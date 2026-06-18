@@ -1,0 +1,110 @@
+<div class="space-y-8 font-body">
+
+  <!-- TOP STATS CARDS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <!-- Today -->
+    <div class="bg-white border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <span class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Receita Hoje</span>
+      <h3 class="text-xl font-extrabold text-primary mt-2">R$ <%= metrics.revenueToday.toFixed(2).replace('.', ',') %></h3>
+      <span class="text-[9px] text-success font-semibold mt-1">✓ Atualizado</span>
+    </div>
+    <!-- 7 Days -->
+    <div class="bg-white border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <span class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Receita 7 Dias</span>
+      <h3 class="text-xl font-extrabold text-primary mt-2">R$ <%= metrics.revenue7Days.toFixed(2).replace('.', ',') %></h3>
+      <span class="text-[9px] text-text-muted mt-1">Últimos 7 dias</span>
+    </div>
+    <!-- 30 Days -->
+    <div class="bg-white border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <span class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Receita 30 Dias</span>
+      <h3 class="text-xl font-extrabold text-primary mt-2">R$ <%= metrics.revenue30Days.toFixed(2).replace('.', ',') %></h3>
+      <span class="text-[9px] text-text-muted mt-1">Últimos 30 dias</span>
+    </div>
+    <!-- Orders Count -->
+    <div class="bg-white border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <span class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Total de Pedidos</span>
+      <h3 class="text-xl font-extrabold text-primary mt-2"><%= metrics.totalOrders %></h3>
+      <span class="text-[9px] text-text-muted mt-1">Transações totais</span>
+    </div>
+    <!-- Average Ticket -->
+    <div class="bg-white border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <span class="text-[10px] text-text-muted font-bold uppercase tracking-wider">Ticket Médio</span>
+      <h3 class="text-xl font-extrabold text-primary mt-2">R$ <%= metrics.averageTicket.toFixed(2).replace('.', ',') %></h3>
+      <span class="text-[9px] text-text-muted mt-1">Valor médio por compra</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- LEFT & CENTER: Recent Orders -->
+    <div class="lg:col-span-2 bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+      <h3 class="text-xs font-bold text-primary uppercase pb-3 border-b border-gray-100">Últimos 5 Pedidos</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="text-text-muted font-bold border-b border-gray-100 pb-2">
+              <th class="pb-2">ID</th>
+              <th class="pb-2">Cliente</th>
+              <th class="pb-2 text-center">Status</th>
+              <th class="pb-2 text-right">Total</th>
+              <th class="pb-2 text-center w-16">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% if (latestOrders && latestOrders.length > 0) { %>
+              <% latestOrders.forEach(ord => { %>
+                <tr>
+                  <td class="py-3 font-mono text-[10px]">#<%= ord.id.slice(0, 8) %></td>
+                  <td class="py-3 font-semibold"><%= ord.shipping_name %></td>
+                  <td class="py-3 text-center">
+                    <% 
+                      let statusClass = 'bg-gray-100 text-gray-700';
+                      if (ord.status === 'paid') statusClass = 'bg-green-100 text-green-700';
+                      if (ord.status === 'shipped') statusClass = 'bg-blue-100 text-blue-700';
+                      if (ord.status === 'cancelled') statusClass = 'bg-red-100 text-red-700';
+                    %>
+                    <span class="px-2.5 py-0.5 rounded-full text-[9px] uppercase font-bold <%= statusClass %>">
+                      <%= ord.status %>
+                    </span>
+                  </td>
+                  <td class="py-3 text-right font-bold">R$ <%= parseFloat(ord.total).toFixed(2).replace('.', ',') %></td>
+                  <td class="py-3 text-center">
+                    <a href="/admin/pedidos/<%= ord.id %>" class="px-2 py-1 bg-surface border border-border text-[10px] font-bold rounded-lg hover:bg-gray-100">Ver</a>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="py-8 text-center text-text-muted">Nenhum pedido registrado.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT: Low Stock Warning -->
+    <div class="bg-white border border-border rounded-2xl p-6 shadow-xs space-y-4">
+      <h3 class="text-xs font-bold text-danger uppercase pb-3 border-b border-gray-100">Alerta de Estoque Baixo</h3>
+      
+      <ul class="divide-y divide-gray-100 max-h-80 overflow-y-auto pr-1">
+        <% if (lowStockProducts && lowStockProducts.length > 0) { %>
+          <% lowStockProducts.forEach(prod => { %>
+            <li class="py-3 flex items-center justify-between text-xs">
+              <div>
+                <h4 class="font-bold text-primary truncate max-w-[150px]"><%= prod.name %></h4>
+                <p class="text-[10px] text-text-muted mt-0.5">SKU: <%= prod.sku %></p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-100 text-danger border border-red-200">
+                Restam <%= prod.stock %>
+              </span>
+            </li>
+          <% }) %>
+        <% } else { %>
+          <li class="py-8 text-center text-text-muted text-xs">Todos os produtos estão com estoque saudável!</li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+
+</div>
