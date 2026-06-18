@@ -17,7 +17,7 @@
       <% posts.forEach(post => { %>
         <article class="bg-white rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
           <a href="/blog/<%= post.slug %>" class="block aspect-video w-full overflow-hidden bg-surface">
-            <img src="<%= post.cover_image || 'https://picsum.photos/400/225' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+            <img src="<%= post.cover_image || '/uploads/placeholder.jpg' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
           </a>
           <div class="p-6 flex-grow flex flex-col justify-between space-y-4">
             <div class="space-y-2">

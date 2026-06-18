@@ -45,7 +45,7 @@
         <% categories.forEach(cat => { %>
           <a href="/produtos?category=<%= cat.slug %>" class="group flex flex-col items-center text-center p-4 rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all duration-300">
             <div class="w-20 h-20 rounded-full overflow-hidden bg-surface mb-4 border border-gray-100 group-hover:scale-110 transition-transform">
-              <img src="<%= cat.image_url || 'https://picsum.photos/150/150' %>" alt="<%= cat.name %>" class="w-full h-full object-cover">
+              <img src="<%= cat.image_url || '/uploads/placeholder.jpg' %>" alt="<%= cat.name %>" class="w-full h-full object-cover">
             </div>
             <h3 class="text-xs sm:text-sm font-bold text-primary group-hover:text-primary-light transition-colors"><%= cat.name %></h3>
           </a>
@@ -196,7 +196,7 @@
         <% latestPosts.forEach(post => { %>
           <article class="bg-white rounded-2xl border border-border overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
             <a href="/blog/<%= post.slug %>" class="block aspect-video w-full overflow-hidden">
-              <img src="<%= post.cover_image || 'https://picsum.photos/400/225' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+              <img src="<%= post.cover_image || '/uploads/placeholder.jpg' %>" alt="<%= post.title %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
             </a>
             <div class="p-6 flex-1 flex flex-col justify-between">
               <div>

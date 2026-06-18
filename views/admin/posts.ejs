@@ -28,7 +28,7 @@
                 <td class="p-4">
                   <div class="flex items-center space-x-3">
                     <div class="w-12 aspect-video rounded-lg overflow-hidden border border-border bg-surface flex-shrink-0">
-                      <img src="<%= post.cover_image || 'https://picsum.photos/100/50' %>" class="w-full h-full object-cover" alt="<%= post.title %>">
+                      <img src="<%= post.cover_image || '/uploads/placeholder.jpg' %>" class="w-full h-full object-cover" alt="<%= post.title %>">
                     </div>
                     <div>
                       <h4 class="font-bold text-primary truncate max-w-[250px]"><%= post.title %></h4>
