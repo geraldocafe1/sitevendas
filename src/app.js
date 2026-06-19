@@ -95,6 +95,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Load user context globally from JWT cookies
+const { loadUserContext } = require('./middlewares/auth');
+app.use(loadUserContext);
+
 // 6. Session Setup (for CSRF and UI messages)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'grao_nobre_session_secret_key_2026',
