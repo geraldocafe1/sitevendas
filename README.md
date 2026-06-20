@@ -25,12 +25,13 @@
 
 ## 🚀 Funcionalidades Principais
 
-* **Carrinho de Compras & Lista de Desejos Dinâmicos**: Gerenciamento de estado rápido com persistência no local storage do cliente, gaveta lateral interativa (drawer) e contadores de itens em tempo real.
+* **Sistema de Dropshipping Integrado**: Modelo de negócios sem estoque próprio. Cadastre múltiplos fornecedores, defina o preço de custo para cálculo automático de margem de lucro e envie e-mails de notificação automáticos aos fornecedores assim que um pedido for confirmado.
+* **Carrinho de Compras & Lista de Desejos Dinâmicos**: Gerenciamento de estado rápido com persistência no local storage do cliente, gaveta lateral interativa (drawer), página completa de Meus Favoritos gerada via API em tempo real e contadores dinâmicos.
 * **Checkout de Etapa Única (One-Page Checkout)**: Processo de finalização simplificado e seguro com suporte a Cartão de Crédito (validação Luhn local), PIX e Boleto Bancário.
 * **Consulta de CEP Inteligente**: Integração com a API ViaCEP no backend para auto-preenchimento automático dos dados de entrega (rua, cidade, estado) com sistema de cache local em memória para minimizar requisições.
 * **Otimização de Conversão (CRO)**: Selos de estoque crítico, prova social ("X pessoas compraram nas últimas 24h"), contadores regressivos de urgência e um popup inteligente de retenção (Exit Intent Popup) oferecendo descontos.
 * **Blog de Conteúdo & SEO**: Área de artigos com SEO técnico otimizado (tags de título, meta descrições amigáveis, robots.txt automático e geração dinâmica de sitemap XML).
-* **Painel Administrativo Completo**: Tela de gerenciamento interno para gerenciar cupons de desconto, acompanhar pedidos, cadastrar clientes e criar artigos no blog.
+* **Painel Administrativo Completo**: Gerencie produtos, categorias, cupons, fornecedores (novo!), acompanhe os pedidos, veja as métricas de margem de lucro e escreva posts para o blog.
 * **Suporte a PWA (Progressive Web App)**: Service Worker configurado com manifesto próprio para instalação do aplicativo em smartphones e navegação offline básica.
 
 ---
