@@ -1,0 +1,182 @@
+<%- contentFor('body') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-body min-h-[60vh]">
+  <div class="flex items-center space-x-2 mb-8">
+    <a href="/" class="text-xs text-text-muted hover:text-primary">Início</a>
+    <span class="text-xs text-text-muted">/</span>
+    <span class="text-xs font-bold text-primary">Meus Favoritos</span>
+  </div>
+
+  <h1 class="text-3xl font-display font-extrabold text-primary mb-2">Lista de Desejos</h1>
+  <p class="text-sm text-text-muted mb-8">Seus cafés selecionados com muito carinho.</p>
+
+  <!-- Container where JS will inject products -->
+  <div id="favorites-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="col-span-full py-12 text-center text-text-muted font-semibold" id="favorites-loading">
+      Carregando seus favoritos...
+    </div>
+  </div>
+  
+  <!-- Empty State -->
+  <div id="favorites-empty" class="hidden text-center py-16 bg-surface-alt rounded-3xl border border-border">
+    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+    </svg>
+    <h3 class="text-xl font-bold text-primary mb-2">Sua lista está vazia</h3>
+    <p class="text-sm text-text-muted mb-6">Nenhum café foi favoritado ainda. Que tal explorar nosso catálogo?</p>
+    <a href="/produtos" class="inline-block px-6 py-3 bg-primary hover:bg-primary-light text-white text-sm font-bold rounded-xl shadow-md transition-colors duration-200">Ver Catálogo</a>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const container = document.getElementById('favorites-container');
+  const loading = document.getElementById('favorites-loading');
+  const emptyState = document.getElementById('favorites-empty');
+
+  if (wishlist.length === 0) {
+    container.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+
+  // Fetch products by IDs
+  const idsParam = wishlist.join(',');
+  fetch(`/api/products?ids=${idsParam}&limit=50`)
+    .then(res => res.json())
+    .then(data => {
+      loading.classList.add('hidden');
+      
+      if (!data.products || data.products.length === 0) {
+        container.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      // Filter out products that might have been deleted/disabled
+      const products = data.products;
+
+      // Ensure valid favorites only remain in localStorage
+      const validIds = products.map(p => p.id);
+      localStorage.setItem('wishlist', JSON.stringify(validIds));
+      
+      // Trigger cart.js UI update to fix badges if invalid items were removed
+      if (typeof window.updateWishlistUI === 'function') {
+        window.updateWishlistUI();
+      } else {
+        const badge = document.getElementById('wishlist-badge');
+        if (badge) {
+          if (validIds.length > 0) {
+            badge.innerText = validIds.length;
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+      }
+      
+      let html = '';
+      products.forEach(p => {
+        let discountPercent = 0;
+        if (p.compare_price && parseFloat(p.compare_price) > parseFloat(p.price)) {
+          const valDiff = parseFloat(p.compare_price) - parseFloat(p.price);
+          discountPercent = Math.round((valDiff / parseFloat(p.compare_price)) * 100);
+        }
+
+        const imageStr = (p.images && p.images.length > 0) ? p.images[0] : '/uploads/placeholder.jpg';
+        let imgSrc = imageStr;
+        let webpSrc = null;
+        if (typeof imageStr === 'object' && imageStr.webp) {
+           imgSrc = imageStr.jpg;
+           webpSrc = imageStr.webp;
+        }
+
+        const priceFmt = parseFloat(p.price).toFixed(2).replace('.', ',');
+        const comparePriceHtml = p.compare_price ? `<span class="text-xs text-text-muted line-through">R$ ${parseFloat(p.compare_price).toFixed(2).replace('.', ',')}</span>` : '';
+
+        const badgeHtml = discountPercent > 0 ? `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-danger text-white shadow-sm">${discountPercent}% OFF</span>` : '';
+        const badgeFeatured = p.is_featured ? `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-accent text-primary shadow-sm">DESTAQUE</span>` : '';
+
+        const outOfStockBtn = `<button type="button" class="w-full py-2.5 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed flex items-center justify-center space-x-2" disabled><span>Esgotado</span></button>`;
+        const inStockBtn = `<button type="button" class="w-full py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors duration-200" data-cart-add-id="${p.id}" data-cart-add-name="${p.name.replace(/"/g, '&quot;')}" data-cart-add-price="${p.price}" data-cart-add-sku="${p.sku}" data-cart-add-weight="${p.weight_kg}" data-cart-add-image="${webpSrc || imgSrc}" data-cart-add-slug="${p.slug}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg><span>Adicionar</span></button>`;
+        
+        const btnHtml = p.stock > 0 ? inStockBtn : outOfStockBtn;
+
+        const pictureHtml = webpSrc 
+          ? `<picture class="w-full h-full"><source srcset="${webpSrc}" type="image/webp"><img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" loading="lazy"></picture>`
+          : `<img src="${imgSrc}" alt="${p.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" loading="lazy">`;
+
+        html += \`
+          <div class="group relative bg-surface-alt rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col font-body h-full" id="fav-item-\${p.id}">
+            <div class="relative w-full aspect-square bg-surface overflow-hidden">
+              <div class="absolute top-3 left-3 z-10 flex flex-col space-y-1.5 items-start">
+                \${badgeHtml}
+                \${badgeFeatured}
+              </div>
+              <!-- Remove favorite direct button -->
+              <button type="button" 
+                      class="absolute top-3 right-3 z-10 w-9 h-9 bg-white bg-opacity-80 backdrop-blur-xs rounded-full flex items-center justify-center text-danger hover:bg-white transition-all duration-200 shadow-xs focus:outline-none"
+                      onclick="removeFromFavorites('\${p.id}')"
+                      aria-label="Remover dos favoritos">
+                <svg class="w-5 h-5 fill-red-500 stroke-current transition-colors" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+              </button>
+              <a href="/produtos/\${p.slug}" class="block w-full h-full">
+                \${pictureHtml}
+              </a>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <p class="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-1">Cafés Especiais</p>
+                <h3 class="text-sm font-bold text-primary mb-2 line-clamp-2 hover:text-primary-light">
+                  <a href="/produtos/\${p.slug}">\${p.name}</a>
+                </h3>
+              </div>
+              <div>
+                <div class="flex items-baseline space-x-2 mb-4 mt-2">
+                  <span class="text-base font-extrabold text-primary">R$ \${priceFmt}</span>
+                  \${comparePriceHtml}
+                </div>
+                \${btnHtml}
+              </div>
+            </div>
+          </div>
+        \`;
+      });
+      
+      container.innerHTML = html;
+      
+      window.removeFromFavorites = function(id) {
+        let list = JSON.parse(localStorage.getItem('wishlist')) || [];
+        list = list.filter(item => item !== id);
+        localStorage.setItem('wishlist', JSON.stringify(list));
+        
+        const card = document.getElementById('fav-item-' + id);
+        if (card) card.remove();
+        
+        // Update global UI
+        const badge = document.getElementById('wishlist-badge');
+        if (badge) {
+          if (list.length > 0) {
+            badge.innerText = list.length;
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+        
+        if (list.length === 0) {
+          container.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        }
+      };
+      
+    })
+    .catch(err => {
+      loading.innerHTML = 'Erro ao carregar favoritos. Tente novamente mais tarde.';
+      console.error(err);
+    });
+});
+</script>

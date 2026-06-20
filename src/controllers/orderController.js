@@ -1,7 +1,7 @@
-const { Order, OrderItem, Product, Coupon, sequelize } = require('../models');
+const { Order, OrderItem, Product, Coupon, Supplier, sequelize } = require('../models');
 const cartService = require('../services/cartService');
 const couponService = require('../services/couponService');
-const { sendOrderConfirmationEmail } = require('../services/emailService');
+const { sendOrderConfirmationEmail, sendDropshippingOrderEmail } = require('../services/emailService');
 
 const createOrderAPI = async (req, res) => {
   if (req.validationErrors) {
@@ -121,8 +121,29 @@ const createOrderAPI = async (req, res) => {
     // Commit Transaction
     await t.commit();
 
-    // Send order confirmation email in background
+    // Send order confirmation email to customer in background
     sendOrderConfirmationEmail(order, createdItems).catch(err => console.error('Confirmation email failed:', err));
+
+    // --- DROPSHIPPING: Notify each supplier automatically ---
+    // Group items by supplier_id
+    const supplierGroups = {};
+    for (const item of createdItems) {
+      const product = await Product.findByPk(item.product_id, {
+        include: [{ model: Supplier, as: 'supplier' }]
+      });
+      if (product && product.supplier && product.supplier.is_active) {
+        const supplierId = product.supplier.id;
+        if (!supplierGroups[supplierId]) {
+          supplierGroups[supplierId] = { supplier: product.supplier, items: [] };
+        }
+        supplierGroups[supplierId].items.push({ ...item, name: product.name });
+      }
+    }
+    // Send one email per supplier with only their items
+    for (const group of Object.values(supplierGroups)) {
+      sendDropshippingOrderEmail(group.supplier, order, group.items)
+        .catch(err => console.error(`Dropshipping email to ${group.supplier.email} failed:`, err));
+    }
 
     // Generate mock payment references
     let paymentData = {};

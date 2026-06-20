@@ -204,6 +204,22 @@ const renderProductDetail = async (req, res) => {
   }
 };
 
+const renderFavorites = async (req, res) => {
+  try {
+    res.render('pages/favorites', {
+      title: 'Meus Favoritos - Grão Nobre',
+      meta_description: 'Veja os seus cafés favoritos salvos na sua lista de desejos.'
+    });
+  } catch (error) {
+    console.error('Favorites page error:', error);
+    res.status(500).render('pages/error', {
+      title: 'Erro no Servidor',
+      message: 'Erro ao carregar favoritos.',
+      status: 500
+    });
+  }
+};
+
 const submitReview = async (req, res) => {
   if (req.validationErrors) {
     return res.status(400).json({ errors: req.validationErrors });
@@ -260,6 +276,13 @@ const getProductsAPI = async (req, res) => {
         { name: { [Op.like]: `%${q.trim()}%` } },
         { sku: { [Op.like]: `%${q.trim()}%` } }
       ];
+    }
+
+    if (req.query.ids) {
+      const ids = req.query.ids.split(',').filter(id => id.trim() !== '');
+      if (ids.length > 0) {
+        whereClause.id = { [Op.in]: ids };
+      }
     }
 
     if (category) {
@@ -335,6 +358,7 @@ module.exports = {
   renderHome,
   renderCatalog,
   renderProductDetail,
+  renderFavorites,
   submitReview,
   getProductsAPI,
   getProductBySlugAPI

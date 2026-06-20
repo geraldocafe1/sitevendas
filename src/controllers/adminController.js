@@ -1,4 +1,4 @@
-const { Product, Category, Order, OrderItem, User, Coupon, Post, sequelize } = require('../models');
+const { Product, Category, Order, OrderItem, User, Coupon, Post, Supplier, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const { sendOrderStatusUpdateEmail } = require('../services/emailService');
 
@@ -580,6 +580,78 @@ const deletePost = async (req, res) => {
   }
 };
 
+// SUPPLIERS CRUD
+const renderSuppliers = async (req, res) => {
+  try {
+    const suppliers = await Supplier.findAll({ order: [['created_at', 'DESC']] });
+    // For each supplier, count their linked products
+    const suppliersWithCount = await Promise.all(suppliers.map(async (s) => {
+      const productCount = await Product.count({ where: { supplier_id: s.id } });
+      return { ...s.toJSON(), productCount };
+    }));
+    res.render('admin/suppliers', {
+      title: 'Fornecedores - Grão Nobre',
+      layout: 'layouts/admin',
+      suppliers: suppliersWithCount
+    });
+  } catch (error) {
+    console.error('Admin suppliers error:', error);
+    res.status(500).send('Erro no servidor ao carregar fornecedores.');
+  }
+};
+
+const createSupplier = async (req, res) => {
+  const { name, email, whatsapp, contact_name, notes } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Nome e email são obrigatórios.' });
+  }
+  try {
+    const existing = await Supplier.findOne({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: 'Já existe um fornecedor com este email.' });
+    }
+    const supplier = await Supplier.create({ name, email, whatsapp, contact_name, notes, is_active: true });
+    return res.status(201).json({ message: 'Fornecedor cadastrado com sucesso!', supplier });
+  } catch (error) {
+    console.error('Error creating supplier:', error);
+    return res.status(500).json({ error: 'Erro ao cadastrar fornecedor.' });
+  }
+};
+
+const editSupplier = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, whatsapp, contact_name, notes, is_active } = req.body;
+  try {
+    const supplier = await Supplier.findByPk(id);
+    if (!supplier) return res.status(404).json({ error: 'Fornecedor não encontrado.' });
+    await supplier.update({
+      name: name || supplier.name,
+      email: email || supplier.email,
+      whatsapp,
+      contact_name,
+      notes,
+      is_active: is_active === 'true' || is_active === true
+    });
+    return res.json({ message: 'Fornecedor atualizado com sucesso!', supplier });
+  } catch (error) {
+    console.error('Error editing supplier:', error);
+    return res.status(500).json({ error: 'Erro ao atualizar fornecedor.' });
+  }
+};
+
+const deleteSupplier = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const supplier = await Supplier.findByPk(id);
+    if (!supplier) return res.status(404).json({ error: 'Fornecedor não encontrado.' });
+    await supplier.update({ is_active: false });
+    return res.json({ message: 'Fornecedor desativado com sucesso!' });
+  } catch (error) {
+    console.error('Error deleting supplier:', error);
+    return res.status(500).json({ error: 'Erro ao desativar fornecedor.' });
+  }
+};
+
 module.exports = {
   renderDashboard,
   renderProducts,
@@ -596,5 +668,9 @@ module.exports = {
   renderPosts,
   createPost,
   editPost,
-  deletePost
+  deletePost,
+  renderSuppliers,
+  createSupplier,
+  editSupplier,
+  deleteSupplier
 };

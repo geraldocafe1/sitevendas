@@ -194,8 +194,81 @@ const sendOrderStatusUpdateEmail = async (order, status) => {
   return sendMailHelper(order.shipping_email, subject, html);
 };
 
+/**
+ * Send dropshipping order notification to the supplier
+ * Called automatically after a new order is placed with products linked to this supplier
+ */
+const sendDropshippingOrderEmail = async (supplier, order, items = []) => {
+  const subject = `🛒 NOVO PEDIDO PARA ENVIO — Pedido #${order.id.slice(0, 8)}`;
+
+  const itemsRows = items.map(item => `
+    <tr>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 600;">${item.name}</td>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">R$ ${parseFloat(item.unit_price).toFixed(2).replace('.', ',')}</td>
+    </tr>
+  `).join('');
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background-color: #f0fdf4; padding: 40px; color: #0f172a;">
+      <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; border: 2px solid #16a34a; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        
+        <div style="background-color: #16a34a; padding: 25px 30px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 22px;">🛒 Novo Pedido para Despacho</h1>
+          <p style="color: #dcfce7; margin: 6px 0 0 0; font-size: 14px;">Pedido #${order.id.slice(0, 8)} — ${new Date().toLocaleString('pt-BR')}</p>
+        </div>
+
+        <div style="padding: 30px;">
+
+          <p style="font-size: 15px; margin: 0 0 20px 0;">Olá, <strong>${supplier.contact_name || supplier.name}</strong>!</p>
+          <p style="font-size: 15px; margin: 0 0 25px 0;">Um novo pedido foi realizado em nossa loja e precisa ser <strong>preparado e enviado pelo seu estoque</strong>. Segue abaixo todas as informações necessárias:</p>
+
+          <!-- PRODUTOS -->
+          <h3 style="font-size: 15px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin: 0 0 10px 0;">📦 Produtos para Enviar</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+            <thead>
+              <tr style="background-color: #f8fafc;">
+                <th style="padding: 10px 12px; text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 13px;">Produto</th>
+                <th style="padding: 10px 12px; text-align: center; border-bottom: 2px solid #e2e8f0; font-size: 13px;">Qtd</th>
+                <th style="padding: 10px 12px; text-align: right; border-bottom: 2px solid #e2e8f0; font-size: 13px;">Preço Unit.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRows}
+            </tbody>
+          </table>
+
+          <!-- ENDEREÇO DE ENTREGA -->
+          <h3 style="font-size: 15px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin: 0 0 15px 0;">📍 Endereço de Entrega do Cliente</h3>
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 25px; font-size: 14px; line-height: 1.8;">
+            <p style="margin: 0;"><strong>Nome:</strong> ${order.shipping_name}</p>
+            <p style="margin: 0;"><strong>Telefone:</strong> ${order.shipping_phone}</p>
+            <p style="margin: 0;"><strong>Endereço:</strong> ${order.shipping_address}</p>
+            <p style="margin: 0;"><strong>CEP:</strong> ${order.shipping_zip}</p>
+            <p style="margin: 0;"><strong>Cidade / Estado:</strong> ${order.shipping_city} - ${order.shipping_state}</p>
+          </div>
+
+          <!-- AVISO -->
+          <div style="background-color: #fefce8; border: 1px solid #fde047; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+            <p style="margin: 0; font-size: 14px; color: #713f12;">⚠️ <strong>Importante:</strong> O cliente já realizou o pagamento. Por favor, prepare e despache este pedido o mais breve possível. Após o envio, responda este email com o código de rastreamento.</p>
+          </div>
+
+          <p style="font-size: 13px; color: #64748b; margin: 0;">Dúvidas? Responda este email ou entre em contato com ${STORE_NAME}.</p>
+        </div>
+
+        <div style="background-color: #f8fafc; padding: 15px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="margin: 0; font-size: 12px; color: #94a3b8;">Notificação automática de pedido — ${STORE_NAME}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return sendMailHelper(supplier.email, subject, html);
+};
+
 module.exports = {
   sendWelcomeEmail,
   sendOrderConfirmationEmail,
-  sendOrderStatusUpdateEmail
+  sendOrderStatusUpdateEmail,
+  sendDropshippingOrderEmail
 };

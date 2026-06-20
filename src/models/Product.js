@@ -37,6 +37,15 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  supplier_id: {
+    type: DataTypes.UUID,
+    allowNull: true // null = produto próprio
+  },
+  cost_price: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true, // preço de custo do fornecedor
+    defaultValue: null
+  },
   category_id: {
     type: DataTypes.UUID,
     allowNull: false

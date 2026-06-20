@@ -51,6 +51,7 @@ app.use(helmet({
         "https://www.googletagmanager.com", 
         "https://connect.facebook.net"
       ],
+      scriptSrcAttr: ["'unsafe-inline'"],
       fontSrc: [
         "'self'", 
         "https://fonts.gstatic.com", 

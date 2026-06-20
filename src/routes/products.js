@@ -8,6 +8,7 @@ const { reviewRules } = require('../middlewares/validate');
 router.get('/', productController.renderHome);
 router.get('/produtos', productController.renderCatalog);
 router.get('/produtos/:slug', productController.renderProductDetail);
+router.get('/favoritos', productController.renderFavorites);
 
 router.get('/privacidade', (req, res) => {
   res.render('pages/privacidade', {

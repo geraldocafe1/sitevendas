@@ -36,4 +36,10 @@ router.post('/admin/posts', upload.single('cover'), processImages, adminPostRule
 router.put('/admin/posts/:id', upload.single('cover'), processImages, adminPostRules, adminController.editPost);
 router.delete('/admin/posts/:id', adminController.deletePost);
 
+// Suppliers (Dropshipping) CRUD
+router.get('/admin/fornecedores', adminController.renderSuppliers);
+router.post('/admin/fornecedores', adminController.createSupplier);
+router.put('/admin/fornecedores/:id', adminController.editSupplier);
+router.delete('/admin/fornecedores/:id', adminController.deleteSupplier);
+
 module.exports = router;

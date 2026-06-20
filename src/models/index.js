@@ -7,10 +7,14 @@ const OrderItem = require('./OrderItem');
 const Coupon = require('./Coupon');
 const Review = require('./Review');
 const Post = require('./Post');
+const Supplier = require('./Supplier');
 
 // Establish associations
 Category.hasMany(Product, { foreignKey: 'category_id', as: 'products' });
 Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+
+Supplier.hasMany(Product, { foreignKey: 'supplier_id', as: 'products' });
+Product.belongsTo(Supplier, { foreignKey: 'supplier_id', as: 'supplier' });
 
 Product.hasMany(Review, { foreignKey: 'product_id', as: 'reviews' });
 Review.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
@@ -39,5 +43,6 @@ module.exports = {
   OrderItem,
   Coupon,
   Review,
-  Post
+  Post,
+  Supplier
 };
